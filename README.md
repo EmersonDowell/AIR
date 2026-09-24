@@ -100,9 +100,6 @@ Then open:
 http://127.0.0.1:8181
 ```
 
-Replace `<owner>` above with the GitHub account or organization hosting this
-repository.
-
 ## Build requirements
 
 Required:

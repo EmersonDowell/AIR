@@ -1,0 +1,88 @@
+{
+  "fingerprint": "synthetic:desktop_24gb_gpu_64gb_ram",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "storage-host",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "storage0",
+      "target_id": "ram0"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "desktop cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 60129542144,
+      "backend": "host",
+      "capabilities": [
+        "pageable",
+        "pinned-capable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "64 GiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 68719476736
+    },
+    {
+      "architecture": "discrete",
+      "available_bytes": 23622320128,
+      "backend": "cuda",
+      "capabilities": [
+        "graphs",
+        "async-copy"
+      ],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "24 GiB GPU",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 25769803776
+    },
+    {
+      "architecture": "nvme",
+      "available_bytes": 1099511627776,
+      "backend": "filesystem",
+      "capabilities": [
+        "mmap"
+      ],
+      "id": "storage0",
+      "kind": "storage",
+      "name": "NVMe",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 2199023255552
+    }
+  ],
+  "schema_version": 1
+}

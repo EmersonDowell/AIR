@@ -1,0 +1,450 @@
+{
+  "fingerprint": "synthetic:datacenter_8gpu_fast_fabric",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu1"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu2"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu3"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu4"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu1"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu2"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu3"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu4"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu2"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu3"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu4"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu1",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu2",
+      "target_id": "gpu3"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu2",
+      "target_id": "gpu4"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu2",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu2",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu2",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu3",
+      "target_id": "gpu4"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu3",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu3",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu3",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu4",
+      "target_id": "gpu5"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu4",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu4",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu5",
+      "target_id": "gpu6"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu5",
+      "target_id": "gpu7"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu6",
+      "target_id": "gpu7"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "server cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 966367641600,
+      "backend": "host",
+      "capabilities": [
+        "pinned-capable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "1 TiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 1099511627776
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "GPU 0",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu1",
+      "kind": "accelerator",
+      "name": "GPU 1",
+      "numa_node": -1,
+      "ordinal": 1,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu2",
+      "kind": "accelerator",
+      "name": "GPU 2",
+      "numa_node": -1,
+      "ordinal": 2,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu3",
+      "kind": "accelerator",
+      "name": "GPU 3",
+      "numa_node": -1,
+      "ordinal": 3,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu4",
+      "kind": "accelerator",
+      "name": "GPU 4",
+      "numa_node": -1,
+      "ordinal": 4,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu5",
+      "kind": "accelerator",
+      "name": "GPU 5",
+      "numa_node": -1,
+      "ordinal": 5,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu6",
+      "kind": "accelerator",
+      "name": "GPU 6",
+      "numa_node": -1,
+      "ordinal": 6,
+      "total_bytes": 85899345920
+    },
+    {
+      "architecture": "datacenter",
+      "available_bytes": 81604378624,
+      "backend": "cuda",
+      "capabilities": [
+        "peer-access",
+        "graphs"
+      ],
+      "id": "gpu7",
+      "kind": "accelerator",
+      "name": "GPU 7",
+      "numa_node": -1,
+      "ordinal": 7,
+      "total_bytes": 85899345920
+    }
+  ],
+  "schema_version": 1
+}

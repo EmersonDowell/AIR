@@ -1,0 +1,90 @@
+{
+  "fingerprint": "synthetic:dual_gpu_pcie",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu1"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "peer-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "gpu0",
+      "target_id": "gpu1"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "workstation cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 120259084288,
+      "backend": "host",
+      "capabilities": [
+        "pinned-capable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "128 GiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 137438953472
+    },
+    {
+      "architecture": "discrete",
+      "available_bytes": 23622320128,
+      "backend": "cuda",
+      "capabilities": [],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "GPU 0",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 25769803776
+    },
+    {
+      "architecture": "discrete",
+      "available_bytes": 23622320128,
+      "backend": "cuda",
+      "capabilities": [],
+      "id": "gpu1",
+      "kind": "accelerator",
+      "name": "GPU 1",
+      "numa_node": -1,
+      "ordinal": 1,
+      "total_bytes": 25769803776
+    }
+  ],
+  "schema_version": 1
+}

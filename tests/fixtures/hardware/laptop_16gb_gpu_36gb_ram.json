@@ -1,0 +1,91 @@
+{
+  "fingerprint": "synthetic:laptop_16gb_gpu_36gb_ram",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "storage-host",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "storage0",
+      "target_id": "ram0"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [
+        "vector"
+      ],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "laptop cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 34359738368,
+      "backend": "host",
+      "capabilities": [
+        "pageable",
+        "pinned-capable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "36 GiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 38654705664
+    },
+    {
+      "architecture": "discrete",
+      "available_bytes": 15032385536,
+      "backend": "cuda",
+      "capabilities": [
+        "graphs",
+        "async-copy"
+      ],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "16 GiB GPU",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 17179869184
+    },
+    {
+      "architecture": "nvme",
+      "available_bytes": 549755813888,
+      "backend": "filesystem",
+      "capabilities": [
+        "mmap",
+        "direct-io"
+      ],
+      "id": "storage0",
+      "kind": "storage",
+      "name": "NVMe",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 1099511627776
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,64 @@
+{
+  "fingerprint": "synthetic:unified_memory_soc",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "arm64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "SoC CPU",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "unified",
+      "available_bytes": 62277025792,
+      "backend": "host",
+      "capabilities": [
+        "unified"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "unified memory",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 68719476736
+    },
+    {
+      "architecture": "integrated",
+      "available_bytes": 62277025792,
+      "backend": "generic",
+      "capabilities": [
+        "unified-memory"
+      ],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "integrated GPU",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 68719476736
+    }
+  ],
+  "schema_version": 1
+}

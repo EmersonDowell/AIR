@@ -1,0 +1,49 @@
+# Build outputs
+build/
+build-*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Testing/
+compile_commands.json
+
+# Compiled artifacts
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.dylib
+*.exe
+
+# Models / weights
+*.gguf
+*.safetensors
+*.pt
+*.pth
+*.onnx
+
+# Runtime/evidence/local
+*.log
+*.tmp
+cufile.log
+workspace/
+evidence/
+.cache/
+__pycache__/
+*.pyc
+*.pyo
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

@@ -1,0 +1,45 @@
+{
+  "fingerprint": "synthetic:cpu_only_high_ram",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [
+        "vector",
+        "matrix"
+      ],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "high-core-count cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 493921239040,
+      "backend": "host",
+      "capabilities": [
+        "pageable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "512 GiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 549755813888
+    }
+  ],
+  "schema_version": 1
+}

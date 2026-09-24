@@ -1,0 +1,85 @@
+{
+  "fingerprint": "synthetic:nvme_capacity_mode",
+  "links": [
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "memory-access",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "cpu0",
+      "target_id": "ram0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "host-device",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "ram0",
+      "target_id": "gpu0"
+    },
+    {
+      "bandwidth_bytes_per_second": 0,
+      "kind": "storage-host",
+      "latency_microseconds": 0.0,
+      "measured": false,
+      "source_id": "storage0",
+      "target_id": "ram0"
+    }
+  ],
+  "nodes": [
+    {
+      "architecture": "x86_64",
+      "available_bytes": 0,
+      "backend": "cpu",
+      "capabilities": [],
+      "id": "cpu0",
+      "kind": "cpu",
+      "name": "local cpu",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 0
+    },
+    {
+      "architecture": "dram",
+      "available_bytes": 60129542144,
+      "backend": "host",
+      "capabilities": [
+        "pinned-capable"
+      ],
+      "id": "ram0",
+      "kind": "host-memory",
+      "name": "64 GiB RAM",
+      "numa_node": 0,
+      "ordinal": 0,
+      "total_bytes": 68719476736
+    },
+    {
+      "architecture": "discrete",
+      "available_bytes": 15032385536,
+      "backend": "cuda",
+      "capabilities": [],
+      "id": "gpu0",
+      "kind": "accelerator",
+      "name": "16 GiB GPU",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 17179869184
+    },
+    {
+      "architecture": "nvme",
+      "available_bytes": 3298534883328,
+      "backend": "filesystem",
+      "capabilities": [
+        "mmap",
+        "direct-io"
+      ],
+      "id": "storage0",
+      "kind": "storage",
+      "name": "fast NVMe",
+      "numa_node": -1,
+      "ordinal": 0,
+      "total_bytes": 4398046511104
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,274 +1,50 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#07111a" />
-  <meta name="color-scheme" content="dark" />
-  <title>AIR Command Center · Superior MI Labs</title>
-  <meta name="description" content="AIR runtime command center by Superior MI Labs." />
-  <link rel="stylesheet" href="./styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="air-web-version" content="3.2.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta name="color-scheme" content="dark">
+  <title>AIR · Superior MI Labs</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23091420%22/><path d=%22M10 38c9-12 17-12 26 0 7 9 13 9 18 0%22 fill=%22none%22 stroke=%22%2358b8e8%22 stroke-width=%225%22 stroke-linecap=%22round%22/><path d=%22M44 15v16M36 23h16%22 stroke=%22%23c88a55%22 stroke-width=%224%22 stroke-linecap=%22round%22/></svg>">
+  <link rel="stylesheet" href="/app/styles-v320.css">
+  <script>
+    window.__AIR_WEB_BOOT = { version: '3.2.0', started: false };
+    window.addEventListener('error', function (event) {
+      var target = document.getElementById('boot-status');
+      if (target) {
+        target.textContent = 'UI error · ' + (event.message || 'unknown script error');
+        target.className = 'boot-status bad';
+      }
+    });
+  </script>
+  <script defer src="/app/core-v320.js"></script>
+  <script defer src="/app/api-v320.js"></script>
+  <script defer src="/app/views/home-v320.js"></script>
+  <script defer src="/app/views/playground-v320.js"></script>
+  <script defer src="/app/views/decision-v320.js"></script>
+  <script defer src="/app/views/models-v320.js"></script>
+  <script defer src="/app/views/runtime-v320.js"></script>
+  <script defer src="/app/views/diagnostics-v320.js"></script>
+  <script defer src="/app/views/metrics-v320.js"></script>
+  <script defer src="/app/views/setup-v320.js"></script>
+  <script defer src="/app/views/about-v320.js"></script>
+  <script defer src="/app/main-v320.js"></script>
 </head>
 <body>
-  <div class="app-shell" id="appShell">
-    <header class="site-header">
-      <a class="brand" href="#overview" aria-label="AIR home">
-        <svg class="brand-mark" viewBox="0 0 84 48" role="img" aria-label="Superior MI Labs wave mark">
-          <path d="M5 30c13-15 23-20 33-14 8 5 11 15 20 14 7-1 12-8 20-17" />
-          <path d="M5 39c13-12 23-15 33-9 7 4 12 10 20 9 8-1 13-7 20-13" />
-          <path class="mark-accent" d="M67 5v12M61 11h12" />
-        </svg>
-        <span class="brand-copy">
-          <strong>AIR</strong>
-          <span>by Superior MI Labs</span>
-        </span>
-      </a>
-
-      <nav class="main-nav" aria-label="Primary navigation">
-        <button class="nav-link active" data-view="overview">Overview</button>
-        <button class="nav-link" data-view="strategy">Strategy Lab</button>
-        <button class="nav-link" data-view="playground">Playground</button>
-        <button class="nav-link" data-view="diagnostics">Diagnostics</button>
-        <button class="nav-link" data-view="model">Model</button>
-      </nav>
-
-      <div class="header-actions">
-        <button class="icon-button" id="refreshNow" title="Refresh now" aria-label="Refresh runtime">
-          <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v6h-6"/></svg>
-        </button>
-        <button class="connection-pill" id="connectionPill" aria-live="polite">
-          <span class="status-dot status-unknown"></span>
-          <span id="connectionLabel">Connecting</span>
-        </button>
+  <noscript><div class="fatal">AIR Command Center requires JavaScript.</div></noscript>
+  <div id="app">
+    <div class="boot-screen">
+      <div class="brand-mark" aria-hidden="true"><span class="wave">≈</span><span class="plus">+</span></div>
+      <div>
+        <div class="eyebrow">SUPERIOR MI LABS</div>
+        <h1>AIR</h1>
+        <p>Adaptive Inference Runtime</p>
+        <div id="boot-status" class="boot-status">Loading application shell…</div>
       </div>
-    </header>
-
-    <div class="status-strip" aria-label="Live runtime summary">
-      <div class="strip-item emphasis">
-        <span class="eyebrow">Runtime</span>
-        <strong id="stripStatus">Connecting…</strong>
-      </div>
-      <div class="strip-item"><span class="eyebrow">Backend</span><strong id="stripBackend">—</strong></div>
-      <div class="strip-item"><span class="eyebrow">Model</span><strong id="stripModel">—</strong></div>
-      <div class="strip-item"><span class="eyebrow">Strategy</span><strong id="stripStrategy">—</strong></div>
-      <div class="strip-item"><span class="eyebrow">Active</span><strong id="stripActive">—</strong></div>
-      <div class="strip-item"><span class="eyebrow">Queued</span><strong id="stripQueued">—</strong></div>
-      <div class="strip-item wide"><span class="eyebrow">Generated tok/s</span><strong id="stripTps">—</strong><span class="sparkline" id="throughputSpark"></span></div>
     </div>
-
-    <main>
-      <section class="view active" id="view-overview" data-view-section="overview">
-        <section class="hero-panel">
-          <div class="hero-copy">
-            <span class="kicker">Advanced Inference Runtime</span>
-            <h1>See the engine think.<br><span>Keep the engine honest.</span></h1>
-            <p>A live operational surface for AIR planning, scheduling, memory, model execution, and evidence. Built to expose the real runtime rather than hide it behind a generic chat shell.</p>
-            <div class="hero-actions">
-              <button class="primary-button" data-jump="playground">Run AIR</button>
-              <button class="secondary-button" data-jump="strategy">Inspect planner</button>
-            </div>
-          </div>
-          <div class="hero-visual" aria-hidden="true">
-            <div class="horizon horizon-one"></div>
-            <div class="horizon horizon-two"></div>
-            <div class="horizon horizon-three"></div>
-            <div class="north-star"></div>
-            <div class="hero-quote">DEEPER CONTEXT<br>BETTER DECISIONS<br><span>BUILT IN UPPER MICHIGAN</span></div>
-          </div>
-        </section>
-
-        <section class="metric-grid" aria-label="Runtime metrics">
-          <article class="metric-card"><div class="metric-head"><span>Throughput</span><span class="metric-icon">↗</span></div><strong id="metricTps">—</strong><small>generated tokens / second</small></article>
-          <article class="metric-card"><div class="metric-head"><span>P50 total</span><span class="metric-icon">◌</span></div><strong id="metricP50">—</strong><small>request latency</small></article>
-          <article class="metric-card"><div class="metric-head"><span>P95 total</span><span class="metric-icon">◷</span></div><strong id="metricP95">—</strong><small>tail latency</small></article>
-          <article class="metric-card"><div class="metric-head"><span>Prefix reuse</span><span class="metric-icon">∞</span></div><strong id="metricPrefix">—</strong><small>reused prompt tokens</small></article>
-          <article class="metric-card"><div class="metric-head"><span>Completed</span><span class="metric-icon">✓</span></div><strong id="metricCompleted">—</strong><small>requests this process</small></article>
-          <article class="metric-card"><div class="metric-head"><span>Failures</span><span class="metric-icon">!</span></div><strong id="metricFailed">—</strong><small>failed + stream delivery</small></article>
-        </section>
-
-        <section class="dashboard-grid">
-          <article class="panel panel-strategy">
-            <div class="panel-header">
-              <div><span class="panel-kicker">Planner</span><h2>Strategy Lab</h2><p id="plannerReason">Waiting for planner state.</p></div>
-              <div class="selected-strategy"><span>Selected</span><strong id="strategySelected">—</strong></div>
-            </div>
-            <div class="strategy-summary" id="strategySummary">
-              <div><span>Mode</span><strong id="plannerMode">—</strong></div>
-              <div><span>Objective</span><strong id="plannerObjective">—</strong></div>
-              <div><span>Transition</span><strong id="plannerTransition">—</strong></div>
-              <div><span>Break-even</span><strong id="plannerBreakEven">—</strong></div>
-            </div>
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead><tr><th>Candidate</th><th>Disposition</th><th>Memory</th><th>Hot</th><th>Transition</th><th>Horizon</th><th>Break-even</th></tr></thead>
-                <tbody id="candidateRows"><tr><td colspan="7" class="empty-cell">No candidate data reported yet.</td></tr></tbody>
-              </table>
-            </div>
-          </article>
-
-          <article class="panel panel-flow">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Scheduler</span><h2>Request flow</h2></div>
-              <span class="live-badge"><span class="status-dot status-unknown"></span>Live</span>
-            </div>
-            <div class="flow-line" id="requestFlow">
-              <div class="flow-stage"><span class="flow-orb" id="flowQueuedOrb"></span><strong>Queued</strong><em id="flowQueued">—</em></div>
-              <span class="flow-connector"></span>
-              <div class="flow-stage"><span class="flow-orb" id="flowAdmittedOrb"></span><strong>Admitted</strong><em id="flowAdmitted">—</em></div>
-              <span class="flow-connector"></span>
-              <div class="flow-stage"><span class="flow-orb" id="flowPrefillOrb"></span><strong>Prefill</strong><em id="flowPrefill">—</em></div>
-              <span class="flow-connector"></span>
-              <div class="flow-stage"><span class="flow-orb" id="flowDecodeOrb"></span><strong>Decode</strong><em id="flowDecode">—</em></div>
-              <span class="flow-connector"></span>
-              <div class="flow-stage"><span class="flow-orb" id="flowCompleteOrb"></span><strong>Complete</strong><em id="flowComplete">—</em></div>
-            </div>
-            <div class="scheduler-grid">
-              <div><span>Max active</span><strong id="schedMaxActive">—</strong></div>
-              <div><span>Token budget / cycle</span><strong id="schedTokenBudget">—</strong></div>
-              <div><span>Prefill quantum</span><strong id="schedPrefillQuantum">—</strong></div>
-              <div><span>Prefill batch width</span><strong id="schedPrefillBatch">—</strong></div>
-              <div><span>Decode batch width</span><strong id="schedDecodeBatch">—</strong></div>
-              <div><span>Stream queue</span><strong id="schedStreamQueue">—</strong></div>
-            </div>
-          </article>
-
-          <article class="panel panel-memory">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Memory</span><h2>State & resources</h2></div>
-              <span class="capability-chip" id="checkpointingChip">Checkpointing —</span>
-            </div>
-            <div class="resource-bars">
-              <div class="resource-row"><div><span>Device memory</span><strong id="deviceMemoryLabel">—</strong></div><div class="bar"><span id="deviceMemoryBar"></span></div></div>
-              <div class="resource-row"><div><span>KV memory</span><strong id="kvMemoryLabel">—</strong></div><div class="bar"><span id="kvMemoryBar"></span></div></div>
-              <div class="resource-row"><div><span>Admission reserve</span><strong id="admissionLabel">—</strong></div><div class="bar"><span id="admissionBar"></span></div></div>
-              <div class="resource-row"><div><span>KV pool</span><strong id="kvPoolLabel">—</strong></div><div class="bar"><span id="kvPoolBar"></span></div></div>
-            </div>
-            <div class="memory-facts">
-              <div><span>Prepared artifacts</span><strong id="preparedArtifacts">—</strong></div>
-              <div><span>Prefix cache</span><strong id="prefixCacheCap">—</strong></div>
-              <div><span>Paged KV</span><strong id="pagedKvCap">—</strong></div>
-              <div><span>Greedy device selection</span><strong id="greedyCap">—</strong></div>
-            </div>
-            <div class="optional-module" id="sequenceStoreModule" hidden>
-              <span class="panel-kicker">Detected capability</span>
-              <h3>Sequence state store</h3>
-              <div class="mini-grid" id="sequenceStoreGrid"></div>
-            </div>
-          </article>
-
-          <article class="panel panel-playground compact-playground">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Generate</span><h2>Native AIR playground</h2></div>
-              <button class="text-button" data-jump="playground">Open full view →</button>
-            </div>
-            <textarea id="quickPrompt" rows="5" placeholder="Ask AIR to explain, plan, inspect, or reason…"></textarea>
-            <div class="quick-controls">
-              <label>Max tokens <input id="quickMaxTokens" type="number" min="1" max="4096" value="192"></label>
-              <label>Temp <input id="quickTemperature" type="number" min="0" max="2" step="0.1" value="0"></label>
-              <label class="toggle-label"><input id="quickStream" type="checkbox" checked><span class="toggle"></span>Stream</label>
-              <button class="primary-button small" id="quickRun">Run</button>
-            </div>
-            <pre class="response-box" id="quickResponse" aria-live="polite">Ready.</pre>
-          </article>
-
-          <article class="panel panel-events">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Runtime evidence</span><h2>Event timeline</h2></div>
-              <div class="event-controls"><input id="overviewEventFilter" type="search" placeholder="request ID / event type"><button class="text-button" data-jump="diagnostics">All diagnostics →</button></div>
-            </div>
-            <div class="event-list" id="overviewEvents"><div class="empty-state">Waiting for runtime events.</div></div>
-          </article>
-
-          <article class="panel panel-model">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Loaded model</span><h2 id="modelTitle">No model reported</h2></div>
-              <span class="backend-badge" id="modelBackendBadge">—</span>
-            </div>
-            <dl class="spec-grid">
-              <div><dt>Format</dt><dd id="modelFormat">—</dd></div>
-              <div><dt>Architecture</dt><dd id="modelArch">—</dd></div>
-              <div><dt>Layers</dt><dd id="modelLayers">—</dd></div>
-              <div><dt>Embedding</dt><dd id="modelEmbedding">—</dd></div>
-              <div><dt>Context</dt><dd id="modelContext">—</dd></div>
-              <div><dt>Vocabulary</dt><dd id="modelVocab">—</dd></div>
-            </dl>
-            <div class="readonly-note"><strong>Runtime mutation is intentionally unavailable.</strong><span>Model hot-swap, backend changes, scheduler limits, and Strategy Lab objective changes still require process-level configuration.</span></div>
-          </article>
-
-          <article class="panel panel-api">
-            <div class="panel-header compact">
-              <div><span class="panel-kicker">Developer</span><h2>Raw API</h2></div>
-              <div class="segmented compact-segmented" id="rawApiTabs">
-                <button class="segment active" data-raw="runtime">Runtime</button>
-                <button class="segment" data-raw="events">Events</button>
-                <button class="segment" data-raw="model">Model</button>
-                <button class="segment" data-raw="last">Last request</button>
-              </div>
-            </div>
-            <pre class="code-panel" id="rawApiOutput">{}</pre>
-          </article>
-        </section>
-      </section>
-
-      <section class="view" id="view-strategy" data-view-section="strategy">
-        <div class="section-heading"><span class="kicker">Strategy Lab</span><h1>Planner decisions, exposed.</h1><p>The selected strategy and every reported candidate remain tied to AIR's runtime snapshot. This page never fabricates a planner verdict.</p></div>
-        <div class="two-column-layout">
-          <article class="panel large-panel">
-            <div class="panel-header"><div><span class="panel-kicker">Current planner</span><h2 id="strategyPageSelected">—</h2><p id="strategyPageReason">No planner decision reported yet.</p></div><span class="backend-badge" id="strategyPageBackend">—</span></div>
-            <div class="decision-grid">
-              <div><span>Mode</span><strong id="strategyMode">—</strong></div><div><span>Manifest</span><strong id="strategyManifest">—</strong></div><div><span>Objective</span><strong id="strategyObjective">—</strong></div><div><span>Eligible</span><strong id="strategyEligible">—</strong></div><div><span>Prepared state</span><strong id="strategyPrepared">—</strong></div><div><span>KV page</span><strong id="strategyKvPage">—</strong></div>
-            </div>
-            <div class="table-wrap spacious"><table class="data-table"><thead><tr><th>Strategy</th><th>Disposition</th><th>Eligible</th><th>Memory feasible</th><th>Prepared hot</th><th>Transition</th><th>Horizon</th><th>Break-even</th><th>Artifact bytes</th></tr></thead><tbody id="strategyPageRows"><tr><td colspan="9" class="empty-cell">No candidate data reported.</td></tr></tbody></table></div>
-          </article>
-          <aside class="panel insight-panel"><span class="panel-kicker">Execution tactics</span><h2>Selected physical path</h2><dl class="stacked-specs"><div><dt>Backend</dt><dd id="tacticBackend">—</dd></div><div><dt>Prefill quantum</dt><dd id="tacticPrefillQuantum">—</dd></div><div><dt>Prefill block linear</dt><dd id="tacticPrefillLinear">—</dd></div><div><dt>Decode block linear</dt><dd id="tacticDecodeLinear">—</dd></div><div><dt>Decode output linear</dt><dd id="tacticDecodeOutput">—</dd></div><div><dt>Prefill attention</dt><dd id="tacticPrefillAttention">—</dd></div><div><dt>Decode attention</dt><dd id="tacticDecodeAttention">—</dd></div></dl><div class="readonly-note"><strong>Read only by design.</strong><span>The current HTTP surface does not expose runtime planner mutation. AIR remains the sole decision authority.</span></div></aside>
-        </div>
-      </section>
-
-      <section class="view" id="view-playground" data-view-section="playground">
-        <div class="section-heading"><span class="kicker">Playground</span><h1>Talk to AIR without hiding AIR.</h1><p>Use the native endpoint for full request metrics, or the compatible chat/completion surfaces when semantics matter more than detailed timing.</p></div>
-        <div class="playground-layout">
-          <article class="panel playground-console">
-            <div class="segmented" id="playgroundModeTabs"><button class="segment active" data-mode="native">Native AIR</button><button class="segment" data-mode="chat">Chat</button><button class="segment" data-mode="completion">Completion</button></div>
-            <textarea id="playgroundPrompt" rows="12" placeholder="Describe what you want AIR to reason about…"></textarea>
-            <div class="control-grid">
-              <label>Max tokens<input id="maxTokens" type="number" min="1" max="8192" value="256"></label>
-              <label>Temperature<input id="temperature" type="number" min="0" max="2" step="0.1" value="0"></label>
-              <label>Top-p<input id="topP" type="number" min="0" max="1" step="0.05" value="1"></label>
-              <label>Top-k<input id="topK" type="number" min="0" max="1000" value="0"></label>
-              <label>Seed<input id="seed" type="number" value="0"></label>
-              <label class="toggle-label strong-toggle"><input id="streamToggle" type="checkbox" checked><span class="toggle"></span>Streaming</label>
-            </div>
-            <div class="run-row"><button class="primary-button" id="runPlayground">Run request</button><button class="secondary-button danger" id="abortPlayground" disabled>Abort stream</button><span id="playgroundStatus">Ready.</span></div>
-            <pre class="response-box large" id="playgroundResponse" aria-live="polite"></pre>
-          </article>
-          <aside class="panel request-inspector"><span class="panel-kicker">Request inspector</span><h2>Native timing</h2><div class="waterfall" id="timingWaterfall"><div class="empty-state">Run a native AIR request to populate detailed request metrics.</div></div><div class="inspector-facts" id="requestFacts"></div></aside>
-        </div>
-      </section>
-
-      <section class="view" id="view-diagnostics" data-view-section="diagnostics">
-        <div class="section-heading"><span class="kicker">Diagnostics</span><h1>Events first. Assumptions never.</h1><p>A bounded browser history merges AIR's recent event window by sequence number. Filters are presentation-only.</p></div>
-        <article class="panel diagnostics-panel">
-          <div class="diagnostic-toolbar"><input id="eventSearch" type="search" placeholder="Filter by request ID, type, detail, or sequence"><select id="eventTypeFilter"><option value="">All event types</option></select><span id="eventCount">0 events</span></div>
-          <div class="diagnostic-table-wrap"><table class="data-table diagnostic-table"><thead><tr><th>Time</th><th>Seq</th><th>Category</th><th>Event</th><th>Request</th><th>Detail</th></tr></thead><tbody id="diagnosticRows"><tr><td colspan="6" class="empty-cell">No events reported.</td></tr></tbody></table></div>
-        </article>
-        <div class="two-column-layout lower-gap">
-          <article class="panel"><div class="panel-header compact"><div><span class="panel-kicker">Raw diagnostics</span><h2>Prometheus metrics</h2></div><button class="text-button" id="refreshMetrics">Refresh</button></div><pre class="code-panel tall" id="metricsOutput"># Metrics not loaded yet.</pre></article>
-          <article class="panel"><span class="panel-kicker">Connection</span><h2>Frontend runtime behavior</h2><dl class="stacked-specs"><div><dt>Polling</dt><dd>0.8s visible / 3s hidden</dd></div><div><dt>Event history</dt><dd>Bounded to 400 unique sequences</dd></div><div><dt>Transport</dt><dd>Same-origin fetch</dd></div><div><dt>Streaming</dt><dd>POST + ReadableStream SSE parsing</dd></div><div><dt>Output rendering</dt><dd>Text only</dd></div></dl><div class="readonly-note"><strong>Security boundary</strong><span>This command center assumes AIR remains local-only. Do not expose an unauthenticated admin surface directly to the public Internet.</span></div></article>
-        </div>
-      </section>
-
-      <section class="view" id="view-model" data-view-section="model">
-        <div class="section-heading"><span class="kicker">Model</span><h1>Loaded model metadata.</h1><p>Reported directly by AIR's model endpoints. No synthetic capability claims.</p></div>
-        <div class="model-layout">
-          <article class="panel model-hero-card"><span class="panel-kicker">Active model</span><h2 id="modelPageTitle">No model reported</h2><p id="modelPageSubtitle">Waiting for /model.</p><div class="model-stat-row"><div><span>Architecture</span><strong id="modelPageArch">—</strong></div><div><span>Context</span><strong id="modelPageContext">—</strong></div><div><span>Layers</span><strong id="modelPageLayers">—</strong></div><div><span>Embedding</span><strong id="modelPageEmbedding">—</strong></div></div></article>
-          <article class="panel"><span class="panel-kicker">OpenAI-compatible discovery</span><h2>/v1/models</h2><pre class="code-panel tall" id="modelsOutput">{}</pre></article>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer"><div class="footer-brand"><svg class="brand-mark small-mark" viewBox="0 0 84 48"><path d="M5 30c13-15 23-20 33-14 8 5 11 15 20 14 7-1 12-8 20-17"/><path d="M5 39c13-12 23-15 33-9 7 4 12 10 20 9 8-1 13-7 20-13"/><path class="mark-accent" d="M67 5v12M61 11h12"/></svg><span><strong>Superior MI Labs</strong><small>Upper Michigan research & development</small></span></div><span>AIR · local-first command center</span></footer>
   </div>
-  <noscript><div class="noscript">AIR Command Center requires JavaScript to read the live runtime APIs.</div></noscript>
-  <script src="./app.js" defer></script>
 </body>
 </html>

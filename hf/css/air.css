@@ -1446,3 +1446,96 @@ a {
   }
 
 }
+
+/* AIR PERFORMANCE PATCH START */
+
+/*
+ * Performance pass:
+ * keep the underwater aesthetic while avoiding
+ * expensive full-page blur recomposition.
+ */
+
+#neural-ocean {
+  transform: translateZ(0);
+}
+
+#scroll-progress-bar {
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.topbar {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/*
+ * Repeated backdrop filters over an animated
+ * canvas are especially expensive. Slightly
+ * stronger backgrounds retain the glass-like
+ * appearance without recomputing blur for
+ * every card on every frame.
+ */
+
+.feature-card,
+.runtime-map,
+.research-panel,
+.release-data,
+.release-copy {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.feature-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6, 28, 40, 0.82),
+      rgba(3, 16, 25, 0.76)
+    );
+}
+
+.runtime-map,
+.research-panel,
+.release-data,
+.release-copy {
+  background:
+    rgba(3, 15, 23, 0.82);
+}
+
+.water-light {
+  filter: blur(12px);
+  will-change: transform, opacity;
+}
+
+.caustics {
+  filter: blur(2px);
+  will-change: transform;
+}
+
+.status-ring,
+.pulse-dot,
+.scroll-cue-line,
+.release-art img {
+  will-change: transform;
+}
+
+@media (max-width: 680px) {
+
+  .caustics-b {
+    display: none;
+  }
+
+  .caustics {
+    opacity: 0.045;
+  }
+
+  #neural-ocean {
+    opacity: 0.78;
+  }
+
+}
+
+/* AIR PERFORMANCE PATCH END */

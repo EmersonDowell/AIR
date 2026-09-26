@@ -41,8 +41,8 @@
     cpuCount <= 4;
 
   /*
-   * This background is atmosphere, not UI.
-   * It does not need native display resolution.
+   * Keep the optimized rendering envelope
+   * from the previous performance pass.
    */
   const PIXEL_BUDGET =
     lowPower
@@ -93,48 +93,71 @@
   const sceneConfig = {
 
     surface: {
-      network: 0.16,
-      pulse: 0.15,
-      particles: 0.25,
-      currents: 0.20
+      network: 0.23,
+      pulse: 0.18,
+      particles: 0.28,
+      currents: 0.25,
+      wobble: 7
     },
 
     shallows: {
-      network: 0.27,
-      pulse: 0.22,
+      network: 0.32,
+      pulse: 0.25,
       particles: 0.34,
-      currents: 0.30
+      currents: 0.38,
+      wobble: 6
     },
 
     network: {
-      network: 0.55,
-      pulse: 0.60,
-      particles: 0.27,
-      currents: 0.30
+      network: 0.68,
+      pulse: 0.72,
+      particles: 0.18,
+      currents: 0.12,
+      wobble: 2.5
     },
 
     deep: {
-      network: 0.38,
-      pulse: 0.34,
-      particles: 0.20,
-      currents: 0.18
+      network: 0.46,
+      pulse: 0.42,
+      particles: 0.21,
+      currents: 0.16,
+      wobble: 4
     },
 
     signal: {
-      network: 0.62,
-      pulse: 0.78,
-      particles: 0.18,
-      currents: 0.28
+      network: 0.74,
+      pulse: 0.90,
+      particles: 0.16,
+      currents: 0.12,
+      wobble: 2
     },
 
     horizon: {
-      network: 0.20,
-      pulse: 0.18,
-      particles: 0.25,
-      currents: 0.18
+      network: 0.29,
+      pulse: 0.24,
+      particles: 0.28,
+      currents: 0.17,
+      wobble: 3
     }
 
   };
+
+
+  function clamp(
+    value,
+    min,
+    max
+  ) {
+
+    return Math.max(
+      min,
+      Math.min(
+        max,
+        value
+      )
+    );
+
+  }
 
 
   class Node {
@@ -143,8 +166,16 @@
 
       this.index = index;
 
-      this.nx = Math.random();
-      this.ny = Math.random();
+      /*
+       * Stable random identity.
+       * These values never change after creation.
+       */
+
+      this.seedX =
+        Math.random();
+
+      this.seedY =
+        Math.random();
 
       this.phase =
         Math.random() *
@@ -157,43 +188,107 @@
         2;
 
       this.radius =
-        0.8 +
+        0.85 +
         Math.random() *
-        1.2;
+        1.15;
 
       this.energy =
         Math.random() *
-        0.15;
+        0.18;
 
-      this.x = 0;
-      this.y = 0;
+      this.x =
+        this.seedX *
+        width;
+
+      this.y =
+        this.seedY *
+        height;
+
+      this.tx = this.x;
+      this.ty = this.y;
 
     }
 
 
-    update(time, config) {
+    setTarget(
+      normalizedX,
+      normalizedY,
+      immediate = false
+    ) {
 
-      /*
-       * Nodes don't physically wander through
-       * space anymore. They gently wobble around
-       * fixed topology points.
-       *
-       * That lets us calculate connections once.
-       */
+      this.tx =
+        clamp(
+          normalizedX,
+          0.035,
+          0.965
+        ) *
+        width;
 
-      this.x =
-        this.nx * width +
+      this.ty =
+        clamp(
+          normalizedY,
+          0.055,
+          0.945
+        ) *
+        height;
+
+      if (immediate) {
+
+        this.x =
+          this.tx;
+
+        this.y =
+          this.ty;
+
+      }
+
+    }
+
+
+    update(
+      time,
+      config
+    ) {
+
+      const wobble =
+        config.wobble;
+
+      const goalX =
+        this.tx +
         Math.sin(
           time * 0.00018 +
           this.phase
-        ) * 7;
+        ) *
+        wobble;
 
-      this.y =
-        this.ny * height +
+      const goalY =
+        this.ty +
         Math.sin(
           time * 0.00014 +
           this.phaseY
-        ) * 5;
+        ) *
+        wobble *
+        0.72;
+
+      /*
+       * Smooth morphing between environmental
+       * and computational arrangements.
+       */
+
+      this.x +=
+        (
+          goalX -
+          this.x
+        ) *
+        0.075;
+
+      this.y +=
+        (
+          goalY -
+          this.y
+        ) *
+        0.075;
+
 
       if (!coarsePointer) {
 
@@ -209,23 +304,23 @@
           dx * dx +
           dy * dy;
 
-        const influenceRadius = 155;
-        const influenceSq =
-          influenceRadius *
-          influenceRadius;
+        const radius = 165;
+        const radiusSq =
+          radius *
+          radius;
 
         if (
           distanceSq <
-          influenceSq
+          radiusSq
         ) {
 
           const influence =
             (
               1 -
               distanceSq /
-              influenceSq
+              radiusSq
             ) *
-            0.58;
+            0.60;
 
           if (
             influence >
@@ -239,19 +334,22 @@
 
       }
 
+
       if (
         Math.sin(
-          time * 0.0008 +
+          time * 0.00082 +
           this.phase
-        ) > 0.996 &&
+        ) > 0.995 &&
         Math.random() <
           config.pulse *
-          0.012
+          0.014
       ) {
+
         this.energy = 1;
+
       }
 
-      this.energy *= 0.968;
+      this.energy *= 0.969;
 
     }
 
@@ -261,13 +359,13 @@
   class Particle {
 
     constructor() {
-
       this.reset(true);
-
     }
 
 
-    reset(initial = false) {
+    reset(
+      initial = false
+    ) {
 
       this.x =
         Math.random() *
@@ -312,7 +410,699 @@
         this.x < -20 ||
         this.x > width + 20
       ) {
+
         this.reset();
+
+      }
+
+    }
+
+  }
+
+
+  function targetForScene(
+    scene,
+    index,
+    node
+  ) {
+
+    const count =
+      nodes.length ||
+      NODE_COUNT;
+
+
+    /*
+     * HERO
+     *
+     * Organic neural field suspended in water.
+     */
+
+    if (
+      scene === "surface"
+    ) {
+
+      return {
+        x:
+          node.seedX,
+
+        y:
+          node.seedY
+      };
+
+    }
+
+
+    /*
+     * SHALLOWS
+     *
+     * Neural activity begins to resemble
+     * horizontal Lake Superior currents.
+     */
+
+    if (
+      scene === "shallows"
+    ) {
+
+      const lanes = 4;
+
+      const lane =
+        index %
+        lanes;
+
+      const slot =
+        Math.floor(
+          index /
+          lanes
+        );
+
+      const slots =
+        Math.ceil(
+          count /
+          lanes
+        );
+
+      const x =
+        (
+          slot +
+          0.45
+        ) /
+        Math.max(
+          slots,
+          1
+        );
+
+      const y =
+        0.21 +
+        lane *
+        0.18 +
+        Math.sin(
+          index *
+          1.13
+        ) *
+        0.024;
+
+      return {
+        x:
+          x +
+          Math.sin(
+            node.phase
+          ) *
+          0.015,
+
+        y
+      };
+
+    }
+
+
+    /*
+     * ARCHITECTURE
+     *
+     * Five distinct vertical stages form:
+     *
+     * Request
+     * Runtime
+     * Inference
+     * Decision
+     * State
+     */
+
+    if (
+      scene === "network"
+    ) {
+
+      const columns = 5;
+
+      const column =
+        index %
+        columns;
+
+      const row =
+        Math.floor(
+          index /
+          columns
+        );
+
+      const rowsInColumn =
+        Math.ceil(
+          (
+            count -
+            column
+          ) /
+          columns
+        );
+
+      const x =
+        0.11 +
+        column *
+        0.195;
+
+      const y =
+        rowsInColumn <= 1
+          ? 0.50
+          : 0.18 +
+            (
+              row /
+              (
+                rowsInColumn -
+                1
+              )
+            ) *
+            0.64;
+
+      return {
+        x,
+        y:
+          y +
+          (
+            node.seedY -
+            0.5
+          ) *
+          0.018
+      };
+
+    }
+
+
+    /*
+     * RESEARCH
+     *
+     * The clean graph separates into several
+     * experimental clusters.
+     */
+
+    if (
+      scene === "deep"
+    ) {
+
+      const centers = [
+        [0.27, 0.31],
+        [0.69, 0.28],
+        [0.35, 0.70],
+        [0.74, 0.68]
+      ];
+
+      const cluster =
+        index %
+        centers.length;
+
+      const ring =
+        Math.floor(
+          index /
+          centers.length
+        );
+
+      const angle =
+        node.phase +
+        ring *
+        0.72;
+
+      const radius =
+        0.035 +
+        (
+          ring %
+          4
+        ) *
+        0.013;
+
+      return {
+        x:
+          centers[cluster][0] +
+          Math.cos(
+            angle
+          ) *
+          radius,
+
+        y:
+          centers[cluster][1] +
+          Math.sin(
+            angle
+          ) *
+          radius *
+          1.35
+      };
+
+    }
+
+
+    /*
+     * RELEASE
+     *
+     * Reassemble into a dense directed
+     * signal-processing graph.
+     */
+
+    if (
+      scene === "signal"
+    ) {
+
+      const columns = 5;
+
+      const column =
+        index %
+        columns;
+
+      const row =
+        Math.floor(
+          index /
+          columns
+        );
+
+      const rows =
+        Math.ceil(
+          (
+            count -
+            column
+          ) /
+          columns
+        );
+
+      const centeredRow =
+        row -
+        (
+          rows -
+          1
+        ) /
+        2;
+
+      return {
+        x:
+          0.09 +
+          column *
+          0.205,
+
+        y:
+          0.50 +
+          centeredRow *
+          0.075 *
+          (
+            1 -
+            column *
+            0.045
+          ) +
+          Math.sin(
+            node.phase
+          ) *
+          0.012
+      };
+
+    }
+
+
+    /*
+     * FINALE
+     *
+     * Half of the graph becomes a luminous
+     * horizon. The rest disperses upward into
+     * a constellation field.
+     */
+
+    if (
+      scene === "horizon"
+    ) {
+
+      const horizonCount =
+        Math.max(
+          8,
+          Math.floor(
+            count *
+            0.46
+          )
+        );
+
+      if (
+        index <
+        horizonCount
+      ) {
+
+        const t =
+          (
+            index +
+            1
+          ) /
+          (
+            horizonCount +
+            1
+          );
+
+        return {
+          x: t,
+
+          y:
+            0.61 -
+            Math.sin(
+              t *
+              Math.PI
+            ) *
+            0.065
+        };
+
+      }
+
+      return {
+        x:
+          node.seedX,
+
+        y:
+          0.10 +
+          node.seedY *
+          0.34
+      };
+
+    }
+
+
+    return {
+      x:
+        node.seedX,
+
+      y:
+        node.seedY
+    };
+
+  }
+
+
+  function applySceneTargets(
+    scene,
+    immediate = false
+  ) {
+
+    for (
+      let i = 0;
+      i < nodes.length;
+      i += 1
+    ) {
+
+      const target =
+        targetForScene(
+          scene,
+          i,
+          nodes[i]
+        );
+
+      nodes[i].setTarget(
+        target.x,
+        target.y,
+        immediate
+      );
+
+    }
+
+  }
+
+
+  function addEdge(
+    a,
+    b
+  ) {
+
+    if (
+      a === b ||
+      a < 0 ||
+      b < 0 ||
+      a >= nodes.length ||
+      b >= nodes.length
+    ) {
+      return;
+    }
+
+    const exists =
+      edges.some(
+        edge =>
+          (
+            edge.a === a &&
+            edge.b === b
+          ) ||
+          (
+            edge.a === b &&
+            edge.b === a
+          )
+      );
+
+    if (exists) {
+      return;
+    }
+
+    edges.push({
+      a,
+      b,
+      seed:
+        Math.random()
+    });
+
+  }
+
+
+  function buildOrganicEdges() {
+
+    edges.length = 0;
+
+    const targets =
+      nodes.map(
+        node => ({
+          x:
+            node.tx /
+            width,
+
+          y:
+            node.ty /
+            height
+        })
+      );
+
+    for (
+      let i = 0;
+      i < nodes.length;
+      i += 1
+    ) {
+
+      const nearest = [];
+
+      for (
+        let j = 0;
+        j < nodes.length;
+        j += 1
+      ) {
+
+        if (
+          i === j
+        ) {
+          continue;
+        }
+
+        const dx =
+          targets[i].x -
+          targets[j].x;
+
+        const dy =
+          targets[i].y -
+          targets[j].y;
+
+        nearest.push({
+          j,
+          distance:
+            dx * dx +
+            dy * dy
+        });
+
+      }
+
+      nearest.sort(
+        (a, b) =>
+          a.distance -
+          b.distance
+      );
+
+      for (
+        let k = 0;
+        k <
+        Math.min(
+          CONNECTIONS_PER_NODE,
+          nearest.length
+        );
+        k += 1
+      ) {
+
+        addEdge(
+          i,
+          nearest[k].j
+        );
+
+      }
+
+    }
+
+  }
+
+
+  function buildFlowEdges(
+    dense = false
+  ) {
+
+    edges.length = 0;
+
+    const columns = 5;
+
+    /*
+     * Primary forward paths.
+     */
+
+    for (
+      let i = 0;
+      i < nodes.length;
+      i += 1
+    ) {
+
+      const column =
+        i %
+        columns;
+
+      if (
+        column >=
+        columns - 1
+      ) {
+        continue;
+      }
+
+      const next =
+        i + 1;
+
+      if (
+        next <
+        nodes.length
+      ) {
+
+        addEdge(
+          i,
+          next
+        );
+
+      }
+
+      /*
+       * Occasional cross-row routes make the
+       * runtime look like a real computational
+       * graph rather than five straight wires.
+       */
+
+      if (
+        (
+          i %
+          3 === 0 ||
+          dense
+        ) &&
+        i + 6 <
+        nodes.length
+      ) {
+
+        addEdge(
+          i,
+          i + 6
+        );
+
+      }
+
+    }
+
+
+    /*
+     * Sparse within-stage relationships.
+     */
+
+    for (
+      let i = 0;
+      i + 5 < nodes.length;
+      i += 2
+    ) {
+
+      addEdge(
+        i,
+        i + 5
+      );
+
+    }
+
+  }
+
+
+  function rebuildEdges(
+    scene
+  ) {
+
+    if (
+      scene === "network"
+    ) {
+
+      buildFlowEdges(
+        false
+      );
+
+      return;
+
+    }
+
+    if (
+      scene === "signal"
+    ) {
+
+      buildFlowEdges(
+        true
+      );
+
+      return;
+
+    }
+
+    buildOrganicEdges();
+
+  }
+
+
+  function setScene(
+    scene,
+    immediate = false
+  ) {
+
+    if (
+      scene === activeScene &&
+      !immediate
+    ) {
+      return;
+    }
+
+    activeScene = scene;
+
+    applySceneTargets(
+      activeScene,
+      immediate
+    );
+
+    rebuildEdges(
+      activeScene
+    );
+
+
+    /*
+     * Scene transitions wake a small number
+     * of nodes so the topology seems to
+     * "come online."
+     */
+
+    if (!immediate) {
+
+      for (
+        let i = 0;
+        i < nodes.length;
+        i += 5
+      ) {
+
+        nodes[i].energy =
+          Math.max(
+            nodes[i].energy,
+            0.58
+          );
+
       }
 
     }
@@ -343,10 +1133,9 @@
   }
 
 
-  function buildNodes() {
+  function buildWorld() {
 
     nodes.length = 0;
-    edges.length = 0;
     particles.length = 0;
 
     for (
@@ -358,96 +1147,6 @@
       nodes.push(
         new Node(i)
       );
-
-    }
-
-    /*
-     * Build a sparse nearest-neighbor graph
-     * one time.
-     */
-
-    const edgeKeys =
-      new Set();
-
-    for (
-      let i = 0;
-      i < nodes.length;
-      i += 1
-    ) {
-
-      const nearest = [];
-
-      for (
-        let j = 0;
-        j < nodes.length;
-        j += 1
-      ) {
-
-        if (i === j) {
-          continue;
-        }
-
-        const dx =
-          nodes[i].nx -
-          nodes[j].nx;
-
-        const dy =
-          nodes[i].ny -
-          nodes[j].ny;
-
-        nearest.push({
-          j,
-          distance:
-            dx * dx +
-            dy * dy
-        });
-
-      }
-
-      nearest.sort(
-        (a, b) =>
-          a.distance -
-          b.distance
-      );
-
-      for (
-        let k = 0;
-        k <
-        Math.min(
-          CONNECTIONS_PER_NODE,
-          nearest.length
-        );
-        k += 1
-      ) {
-
-        const j =
-          nearest[k].j;
-
-        const a =
-          Math.min(i, j);
-
-        const b =
-          Math.max(i, j);
-
-        const key =
-          `${a}:${b}`;
-
-        if (
-          edgeKeys.has(key)
-        ) {
-          continue;
-        }
-
-        edgeKeys.add(key);
-
-        edges.push({
-          a,
-          b,
-          seed:
-            Math.random()
-        });
-
-      }
 
     }
 
@@ -463,6 +1162,11 @@
       );
 
     }
+
+    setScene(
+      activeScene,
+      true
+    );
 
   }
 
@@ -545,7 +1249,7 @@
         "rgba(0,0,0,0)"
       );
 
-    buildNodes();
+    buildWorld();
 
     render(
       performance.now()
@@ -585,7 +1289,8 @@
 
 
     /*
-     * Three extremely faint current bands.
+     * Water currents become calmer as the
+     * page becomes more computational.
      */
 
     ctx.beginPath();
@@ -621,16 +1326,22 @@
             band
           );
 
-        if (x === -40) {
+        if (
+          x === -40
+        ) {
+
           ctx.moveTo(
             x,
             y
           );
+
         } else {
+
           ctx.lineTo(
             x,
             y
           );
+
         }
 
       }
@@ -643,7 +1354,7 @@
         206,
         239,
         ${
-          0.012 *
+          0.045 *
           config.currents
         }
       )`;
@@ -661,22 +1372,22 @@
     ctx.beginPath();
 
     for (
-      const p
+      const particle
       of particles
     ) {
 
-      p.update();
+      particle.update();
 
       ctx.moveTo(
-        p.x +
-        p.size,
-        p.y
+        particle.x +
+        particle.size,
+        particle.y
       );
 
       ctx.arc(
-        p.x,
-        p.y,
-        p.size,
+        particle.x,
+        particle.y,
+        particle.size,
         0,
         Math.PI *
         2
@@ -719,7 +1430,7 @@
 
 
     /*
-     * Quiet network: one draw call.
+     * Main topology.
      */
 
     ctx.beginPath();
@@ -747,23 +1458,51 @@
 
     }
 
-    ctx.strokeStyle =
-      `rgba(
-        75,
-        208,
-        246,
-        ${
-          0.175 *
-          config.network
-        }
-      )`;
 
-    ctx.lineWidth = 0.75;
+    if (
+      activeScene ===
+      "horizon"
+    ) {
+
+      ctx.strokeStyle =
+        `rgba(
+          91,
+          201,
+          232,
+          ${
+            0.16 *
+            config.network
+          }
+        )`;
+
+    } else {
+
+      ctx.strokeStyle =
+        `rgba(
+          75,
+          208,
+          246,
+          ${
+            0.175 *
+            config.network
+          }
+        )`;
+
+    }
+
+    ctx.lineWidth =
+      activeScene ===
+      "network" ||
+      activeScene ===
+      "signal"
+        ? 0.95
+        : 0.75;
+
     ctx.stroke();
 
 
     /*
-     * Nodes: one draw call.
+     * Cyan neural points.
      */
 
     ctx.beginPath();
@@ -805,11 +1544,64 @@
 
 
     /*
-     * Only a handful of active edges get
-     * animated traveling signals.
+     * At the horizon the computational field
+     * begins turning into a constellation.
+     * A few points pick up the warm release-art
+     * horizon color.
+     */
+
+    if (
+      activeScene ===
+      "horizon"
+    ) {
+
+      ctx.beginPath();
+
+      for (
+        let i = 2;
+        i < nodes.length;
+        i += 6
+      ) {
+
+        const node =
+          nodes[i];
+
+        ctx.moveTo(
+          node.x + 1.5,
+          node.y
+        );
+
+        ctx.arc(
+          node.x,
+          node.y,
+          1.5,
+          0,
+          Math.PI *
+          2
+        );
+
+      }
+
+      ctx.fillStyle =
+        "rgba(231,168,95,0.62)";
+
+      ctx.fill();
+
+    }
+
+
+    /*
+     * Traveling activation signals.
      */
 
     let pulses = 0;
+
+    const pulseLimit =
+      activeScene === "signal"
+        ? 10
+        : activeScene === "network"
+          ? 8
+          : 6;
 
     for (
       const edge
@@ -817,7 +1609,8 @@
     ) {
 
       if (
-        pulses >= 7
+        pulses >=
+        pulseLimit
       ) {
         break;
       }
@@ -835,15 +1628,22 @@
         );
 
       if (
-        energy < 0.48
+        energy <
+        0.46
       ) {
         continue;
       }
 
+      const directionSpeed =
+        activeScene ===
+        "signal"
+          ? 0.00022
+          : 0.00015;
+
       const t =
         (
           time *
-          0.00015 +
+          directionSpeed +
           edge.seed
         ) % 1;
 
@@ -863,14 +1663,72 @@
         ) *
         t;
 
+
+      /*
+       * Tiny trailing segment gives the signal
+       * a directional feeling without shaders.
+       */
+
+      const tail =
+        Math.max(
+          0,
+          t - 0.055
+        );
+
+      const tx =
+        a.x +
+        (
+          b.x -
+          a.x
+        ) *
+        tail;
+
+      const ty =
+        a.y +
+        (
+          b.y -
+          a.y
+        ) *
+        tail;
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        tx,
+        ty
+      );
+
+      ctx.lineTo(
+        x,
+        y
+      );
+
+      ctx.strokeStyle =
+        `rgba(
+          115,
+          232,
+          255,
+          ${
+            0.16 +
+            energy *
+            0.25
+          }
+        )`;
+
+      ctx.lineWidth =
+        1.1;
+
+      ctx.stroke();
+
+
       ctx.beginPath();
 
       ctx.arc(
         x,
         y,
-        1.3 +
+        1.35 +
         energy *
-        0.7,
+        0.8,
         0,
         Math.PI *
         2
@@ -878,13 +1736,13 @@
 
       ctx.fillStyle =
         `rgba(
-          130,
-          238,
+          139,
+          241,
           255,
           ${
-            0.30 +
+            0.34 +
             energy *
-            0.35
+            0.38
           }
         )`;
 
@@ -897,7 +1755,9 @@
   }
 
 
-  function render(time) {
+  function render(
+    time
+  ) {
 
     if (
       !surfaceGradient
@@ -934,19 +1794,20 @@
   }
 
 
-  function loop(time) {
+  function loop(
+    time
+  ) {
 
     if (!running) {
       return;
     }
 
     /*
-     * Scrolling is already visually active.
-     * Keep the last canvas frame frozen while
-     * the browser moves page content.
-     *
-     * This is the largest scroll-jank reduction.
+     * Preserve the important performance fix:
+     * freeze the atmospheric frame while the
+     * browser is physically scrolling.
      */
+
     if (scrolling) {
 
       requestAnimationFrame(
@@ -977,7 +1838,9 @@
           interval
         );
 
-      render(time);
+      render(
+        time
+      );
 
     }
 
@@ -1005,9 +1868,13 @@
           max
         : 0;
 
-    if (progressBar) {
+    if (
+      progressBar
+    ) {
 
-      progressBar.style.transform =
+      progressBar
+        .style
+        .transform =
         `scaleX(${progress})`;
 
     }
@@ -1024,12 +1891,6 @@
 
           scrolling = false;
 
-          /*
-           * Render immediately after motion
-           * settles rather than waiting for
-           * the next scheduled animation frame.
-           */
-
           render(
             performance.now()
           );
@@ -1043,7 +1904,9 @@
 
   function queueScroll() {
 
-    if (scrollQueued) {
+    if (
+      scrollQueued
+    ) {
       return;
     }
 
@@ -1085,16 +1948,34 @@
               entry.intersectionRatio >
               best.intersectionRatio
             ) {
-              best = entry;
+
+              best =
+                entry;
+
             }
 
           }
 
-          if (best) {
+          if (
+            best
+          ) {
 
-            activeScene =
-              best.target.dataset.scene ||
+            const nextScene =
+              best.target
+                .dataset
+                .scene ||
               "surface";
+
+            if (
+              nextScene !==
+              activeScene
+            ) {
+
+              setScene(
+                nextScene
+              );
+
+            }
 
           }
 
@@ -1125,13 +2006,17 @@
         ".reveal"
       );
 
-    if (reducedMotion) {
+    if (
+      reducedMotion
+    ) {
 
       elements.forEach(
         element =>
-          element.classList.add(
-            "visible"
-          )
+          element
+            .classList
+            .add(
+              "visible"
+            )
       );
 
       return;
@@ -1155,7 +2040,9 @@
 
             entry.target
               .classList
-              .add("visible");
+              .add(
+                "visible"
+              );
 
             observer.unobserve(
               entry.target
@@ -1210,8 +2097,11 @@
       "pointerleave",
       () => {
 
-        pointerX = -99999;
-        pointerY = -99999;
+        pointerX =
+          -99999;
+
+        pointerY =
+          -99999;
 
       }
     );
@@ -1248,9 +2138,9 @@
     ) {
 
       nodes[i].energy =
-        0.85 +
+        0.88 +
         Math.random() *
-        0.15;
+        0.12;
 
     }
 
@@ -1265,7 +2155,10 @@
       );
 
     runtimeNodes.forEach(
-      (element, index) => {
+      (
+        element,
+        index
+      ) => {
 
         element.addEventListener(
           "pointerenter",

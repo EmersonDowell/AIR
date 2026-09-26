@@ -7,21 +7,31 @@
 
   <style>
     :root {
-      color-scheme: light;
-      --ink: #16232d;
-      --muted: #526775;
-      --lake: #245d78;
-      --line: #ccd8de;
-      --background: #f7fafb;
+      --bg: #07111b;
+      --bg2: #0c1825;
+      --panel: rgba(10, 23, 36, 0.74);
+      --panel-strong: rgba(8, 19, 30, 0.88);
+      --ink: #edf6ff;
+      --muted: #a9bfd1;
+      --line: rgba(120, 170, 210, 0.24);
+      --blue: #39c0ff;
+      --blue2: #6ed6ff;
+      --gold: #f2bf6e;
+      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      --radius: 20px;
+      --max: 1180px;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      background: var(--background);
       color: var(--ink);
       font-family:
         Inter,
@@ -30,80 +40,567 @@
         BlinkMacSystemFont,
         "Segoe UI",
         sans-serif;
-      line-height: 1.6;
-    }
-
-    main {
-      max-width: 880px;
-      margin: 0 auto;
-      padding: 90px 28px;
-    }
-
-    .mark {
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--lake);
-    }
-
-    h1 {
-      margin: 14px 0 0;
-      font-size: clamp(3rem, 10vw, 6rem);
-      line-height: 0.95;
-    }
-
-    h2 {
-      margin-top: 18px;
-      font-weight: 400;
-      color: var(--muted);
-    }
-
-    .rule {
-      width: 80px;
-      border-top: 3px solid var(--lake);
-      margin: 36px 0;
-    }
-
-    p {
-      max-width: 720px;
-      font-size: 1.08rem;
+      background:
+        radial-gradient(circle at top left, rgba(43, 120, 180, 0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(255, 170, 100, 0.16), transparent 28%),
+        linear-gradient(180deg, #06111b 0%, #091521 48%, #07111b 100%);
+      line-height: 1.55;
     }
 
     a {
-      color: var(--lake);
+      color: var(--blue2);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .wrap {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(5, 11, 18, 0.72);
+      border-bottom: 1px solid rgba(110, 214, 255, 0.12);
+    }
+
+    .topbar-inner {
+      width: min(var(--max), calc(100% - 32px));
+      margin: 0 auto;
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .brand-kicker {
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--blue2);
+      font-weight: 700;
+    }
+
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav a {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(110, 214, 255, 0.22);
+      background: rgba(57, 192, 255, 0.08);
+      color: var(--ink);
       font-weight: 650;
+      text-decoration: none;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(110, 214, 255, 0.45);
+      background: rgba(57, 192, 255, 0.13);
+      text-decoration: none;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .hero {
+      padding: 52px 0 28px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(57, 192, 255, 0.08);
+      border: 1px solid rgba(110, 214, 255, 0.16);
+      color: var(--blue2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(3rem, 8vw, 5.9rem);
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+      color: var(--muted);
+      margin-bottom: 18px;
+      max-width: 720px;
+    }
+
+    .lede {
+      max-width: 720px;
+      color: #d7e7f3;
+      font-size: 1.02rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .mini {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .mini strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+      font-size: 0.96rem;
+    }
+
+    .art-panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(120, 170, 210, 0.2);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .art-frame {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #07111b;
+      min-height: 380px;
+    }
+
+    .art-frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(5, 10, 18, 0.18), rgba(5, 10, 18, 0.08) 25%, rgba(5, 10, 18, 0.28) 100%);
+      pointer-events: none;
+    }
+
+    .art-frame img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .section {
+      padding: 18px 0 24px;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    .section-kicker {
+      color: var(--blue2);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .section h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.05;
+    }
+
+    .section-copy {
+      color: var(--muted);
+      max-width: 820px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      transition: transform 120ms ease, border-color 120ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(110, 214, 255, 0.38);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 22px;
+      border-radius: 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .panel h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .panel p, .panel li {
+      color: var(--muted);
+    }
+
+    ul.clean {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    details {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.025);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    details + details {
+      margin-top: 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+      color: var(--ink);
+      list-style: none;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "＋";
+      float: right;
+      color: var(--blue2);
+    }
+
+    details[open] summary::after {
+      content: "–";
+    }
+
+    .footer {
+      padding: 40px 0 70px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .footer-box {
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .split,
+      .cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero-grid,
+      .split,
+      .cards,
+      .hero-points {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding-top: 14px;
+        padding-bottom: 14px;
+      }
+
+      .art-frame {
+        min-height: 240px;
+      }
+
+      main.wrap {
+        width: min(var(--max), calc(100% - 24px));
+      }
     }
   </style>
 </head>
 
 <body>
-  <main>
-    <div class="mark">Superior MI Labs</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-kicker">Superior MI Labs</div>
+        <div class="brand-title">AIR • Adaptive Inference Runtime</div>
+      </div>
 
-    <h1>AIR</h1>
+      <nav class="nav">
+        <a href="#overview">Overview</a>
+        <a href="#traits">Traits</a>
+        <a href="#release">Release</a>
+        <a href="#links">Links</a>
+      </nav>
+    </div>
+  </header>
 
-    <h2>Adaptive Inference Runtime</h2>
+  <main class="wrap">
+    <section class="hero" id="overview">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">Public R&amp;D Release • AIR 0.9.12</div>
+          <h1>AIR</h1>
+          <div class="subtitle">Adaptive Inference Runtime</div>
 
-    <div class="rule"></div>
+          <p class="lede">
+            AIR is a local-first inference runtime built around explicit architecture,
+            observable runtime state, bounded scheduling, and real qualification.
+            It is an open Superior MI Labs research effort focused on transparent,
+            high-trust engineering rather than black-box hype.
+          </p>
 
-    <p>
-      AIR is an active Superior MI Labs research program investigating
-      adaptive inference, runtime architecture, hardware-aware execution,
-      and increasingly general intelligent computation.
-    </p>
+          <div class="hero-actions">
+            <a class="button" href="https://github.com/Superior-MI-Labs/AIR" target="_blank" rel="noreferrer">
+              View GitHub Repository
+            </a>
+            <a class="button secondary" href="#release">
+              See Public Release
+            </a>
+          </div>
 
-    <p>
-      This Hugging Face Space is AIR's public research and demonstration
-      surface. GitHub remains the canonical source for engineering,
-      development history, testing, and releases.
-    </p>
+          <div class="hero-points">
+            <div class="mini">
+              <strong>Local-first</strong>
+              Run inference locally and keep the runtime visible.
+            </div>
+            <div class="mini">
+              <strong>Explicit architecture</strong>
+              Clear contracts, bounded behavior, and measurable flows.
+            </div>
+            <div class="mini">
+              <strong>Open research</strong>
+              Public engineering surface with real implementation detail.
+            </div>
+            <div class="mini">
+              <strong>Superior MI Labs</strong>
+              Real engineering and open research rooted in Upper Michigan.
+            </div>
+          </div>
+        </div>
 
-    <p>
-      <a href="https://github.com/Superior-MI-Labs/AIR">
-        View the AIR engineering repository on GitHub
-      </a>
-    </p>
+        <div class="art-panel">
+          <div class="art-frame">
+            <img src="./assets/air-release-0912.png" alt="AIR 0.9.12 public release artwork">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="traits">
+      <div class="section-head">
+        <div class="section-kicker">What stands out</div>
+        <h2>Why AIR is interesting</h2>
+        <div class="section-copy">
+          AIR is not just another wrapper around a model endpoint. The point is a more
+          legible and more controlled runtime surface: visible state, explicit structure,
+          bounded execution, and public engineering that others can inspect.
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <h3>Observable runtime state</h3>
+          <p>Expose what the runtime is doing instead of hiding behavior behind opaque abstractions.</p>
+        </div>
+        <div class="card">
+          <h3>Bounded scheduling</h3>
+          <p>Favor clear execution boundaries and qualification over vague “agentic” behavior.</p>
+        </div>
+        <div class="card">
+          <h3>Decision visibility</h3>
+          <p>Make inference, decision, and scoring surfaces explicit enough to inspect and compare.</p>
+        </div>
+        <div class="card">
+          <h3>Research-driven engineering</h3>
+          <p>Use public releases to communicate architecture, implementation, and evidence clearly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="release">
+      <div class="section-head">
+        <div class="section-kicker">Current release</div>
+        <h2>AIR 0.9.12 public surface</h2>
+        <div class="section-copy">
+          The 0.9.12 public release establishes AIR as a transparent, local-first runtime
+          with visible interfaces for inference and semantic decision flows.
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Release highlights</h3>
+          <ul class="clean">
+            <li>Adaptive Inference Runtime public release</li>
+            <li>Local-first inference runtime orientation</li>
+            <li>Explicit architecture and observable runtime state</li>
+            <li>Candidate-set-normalized decision scoring surface</li>
+            <li>Open engineering and public R&amp;D presentation</li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <h3>Design intent</h3>
+          <p>
+            AIR is meant to feel inspectable. The runtime surface should tell you
+            what it is doing, what assumptions it is making, and where the logic
+            lives. That is the trust model.
+          </p>
+          <details>
+            <summary>Why local-first matters</summary>
+            <p>
+              Local-first inference gives individuals, researchers, and organizations more
+              control over cost, privacy, latency, and infrastructure behavior.
+            </p>
+          </details>
+          <details>
+            <summary>Why explicit architecture matters</summary>
+            <p>
+              Explicit contracts and bounded execution make testing, debugging, and
+              qualification easier than opaque runtime stacks.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="links">
+      <div class="section-head">
+        <div class="section-kicker">Explore</div>
+        <h2>Project links</h2>
+        <div class="section-copy">
+          GitHub remains the canonical engineering source. This Hugging Face Space is the
+          public-facing research and release surface.
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3>Canonical repository</h3>
+          <p>
+            <a href="https://github.com/Superior-MI-Labs/AIR" target="_blank" rel="noreferrer">
+              github.com/Superior-MI-Labs/AIR
+            </a>
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3>Organization</h3>
+          <p>
+            <a href="https://huggingface.co/Superior-Mind-Labs" target="_blank" rel="noreferrer">
+              huggingface.co/Superior-Mind-Labs
+            </a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-box">
+        AIR is an active Superior MI Labs research effort. This page is intentionally lightweight,
+        static, and fast. If you want, the next step after this can be adding release cards,
+        benchmark snapshots, screenshots, and a cleaner project navigation surface.
+      </div>
+    </footer>
   </main>
 </body>
 </html>

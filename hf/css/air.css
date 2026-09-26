@@ -1539,3 +1539,154 @@ a {
 }
 
 /* AIR PERFORMANCE PATCH END */
+
+
+/* ============================================================
+   AIR PERFORMANCE PASS 2
+   ============================================================ */
+
+/*
+ * The canvas now provides the moving atmosphere.
+ * Keep CSS atmosphere static so the browser does
+ * not have multiple full-screen animation layers.
+ */
+
+.caustics {
+  display: none !important;
+}
+
+.water-light {
+  animation: none !important;
+  filter: none !important;
+  will-change: auto !important;
+
+  opacity: 0.72;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(105, 218, 255, 0.14),
+      rgba(29, 118, 158, 0.045) 37%,
+      transparent 70%
+    );
+}
+
+.depth-glow {
+  transition: none;
+}
+
+#neural-ocean {
+  opacity: 0.80;
+  transform: none;
+  will-change: auto;
+}
+
+
+/*
+ * No backdrop-filter anywhere in the page.
+ * This prevents the browser from repeatedly
+ * sampling the animated layer behind content.
+ */
+
+.topbar,
+.feature-card,
+.runtime-map,
+.research-panel,
+.release-data,
+.release-copy {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.topbar {
+  background:
+    rgba(2, 10, 16, 0.94);
+}
+
+
+/*
+ * Large soft shadows look nice but widen the
+ * repaint area considerably while scrolling.
+ */
+
+.feature-card,
+.runtime-map,
+.research-panel,
+.release-data,
+.release-copy {
+  box-shadow:
+    0 12px 34px
+    rgba(0, 0, 0, 0.23);
+}
+
+
+/*
+ * Give the browser stronger isolation boundaries.
+ */
+
+.feature-card,
+.runtime-node,
+.research-panel,
+.release-data,
+.release-copy {
+  contain: paint;
+}
+
+
+/*
+ * Let the browser skip most below-the-fold
+ * rendering until sections approach the viewport.
+ */
+
+.section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 850px;
+}
+
+.release-art-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1100px;
+}
+
+
+/*
+ * Avoid permanently reserving compositor layers.
+ */
+
+.status-ring,
+.pulse-dot,
+.scroll-cue-line,
+.release-art img {
+  will-change: auto;
+}
+
+
+/*
+ * Keep hover behavior but reduce costly image
+ * filter recomposition.
+ */
+
+.release-art img {
+  filter: brightness(0.94);
+}
+
+.release-art:hover img {
+  filter: brightness(1);
+}
+
+
+/*
+ * Narrow devices get an even cheaper background.
+ */
+
+@media (max-width: 760px) {
+
+  #neural-ocean {
+    opacity: 0.68;
+  }
+
+  .water-light {
+    opacity: 0.56;
+  }
+
+}

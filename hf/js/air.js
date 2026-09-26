@@ -4,9 +4,14 @@
   const canvas =
     document.getElementById("neural-ocean");
 
+  if (!canvas) {
+    return;
+  }
+
   const ctx =
     canvas.getContext("2d", {
-      alpha: true
+      alpha: true,
+      desynchronized: true
     });
 
   const progressBar =
@@ -36,61 +41,53 @@
     cpuCount <= 4;
 
   /*
-   * The canvas is atmospheric rather than
-   * precision UI. Rendering it below native
-   * screen resolution on large displays saves
-   * a lot of GPU fill work with almost no
-   * visible quality loss.
+   * This background is atmosphere, not UI.
+   * It does not need native display resolution.
    */
-  const MAX_CANVAS_PIXELS =
+  const PIXEL_BUDGET =
     lowPower
-      ? 1100000
-      : 1700000;
+      ? 420000
+      : 720000;
 
   const TARGET_FPS =
     lowPower
-      ? 24
-      : 30;
+      ? 16
+      : 22;
 
-  const SCROLL_FPS = 20;
-
-  const MAX_NODES =
+  const NODE_COUNT =
     lowPower
-      ? 32
-      : 48;
+      ? 22
+      : 32;
 
-  const MAX_PARTICLES =
+  const PARTICLE_COUNT =
     lowPower
-      ? 30
-      : 48;
+      ? 15
+      : 24;
 
-  const MAX_CONNECTIONS = 3;
+  const CONNECTIONS_PER_NODE = 2;
 
-  let width = 0;
-  let height = 0;
-  let renderScale = 1;
+  const nodes = [];
+  const edges = [];
+  const particles = [];
+
+  let width = 1;
+  let height = 1;
+  let scale = 1;
 
   let activeScene = "surface";
 
-  let pointerX = -10000;
-  let pointerY = -10000;
+  let pointerX = -99999;
+  let pointerY = -99999;
 
   let running = true;
   let scrolling = false;
 
-  let lastFrameTime = 0;
+  let lastFrame = 0;
   let resizeTimer = 0;
   let scrollTimer = 0;
   let scrollQueued = false;
 
-  let backgroundGradient = null;
-
-  const nodes = [];
-  const particles = [];
-  const activeEdges = [];
-
-  let connectionCounts =
-    new Uint8Array(0);
+  let surfaceGradient = null;
 
 
   const sceneConfig = {
@@ -98,43 +95,43 @@
     surface: {
       network: 0.16,
       pulse: 0.15,
-      particle: 0.30,
-      cyan: 0.62
+      particles: 0.25,
+      currents: 0.20
     },
 
     shallows: {
-      network: 0.28,
-      pulse: 0.23,
-      particle: 0.42,
-      cyan: 0.72
+      network: 0.27,
+      pulse: 0.22,
+      particles: 0.34,
+      currents: 0.30
     },
 
     network: {
-      network: 0.52,
-      pulse: 0.58,
-      particle: 0.34,
-      cyan: 0.94
+      network: 0.55,
+      pulse: 0.60,
+      particles: 0.27,
+      currents: 0.30
     },
 
     deep: {
       network: 0.38,
-      pulse: 0.36,
-      particle: 0.25,
-      cyan: 0.74
+      pulse: 0.34,
+      particles: 0.20,
+      currents: 0.18
     },
 
     signal: {
-      network: 0.58,
-      pulse: 0.74,
-      particle: 0.24,
-      cyan: 1
+      network: 0.62,
+      pulse: 0.78,
+      particles: 0.18,
+      currents: 0.28
     },
 
     horizon: {
       network: 0.20,
-      pulse: 0.20,
-      particle: 0.32,
-      cyan: 0.67
+      pulse: 0.18,
+      particles: 0.25,
+      currents: 0.18
     }
 
   };
@@ -142,82 +139,93 @@
 
   class Node {
 
-    constructor() {
-      this.reset();
-    }
+    constructor(index) {
 
-    reset() {
+      this.index = index;
 
-      this.x =
-        Math.random() * width;
-
-      this.y =
-        Math.random() * height;
-
-      this.vx =
-        (Math.random() - 0.5) *
-        0.11;
-
-      this.vy =
-        (Math.random() - 0.5) *
-        0.08;
-
-      this.radius =
-        0.8 +
-        Math.random() * 1.25;
-
-      this.energy =
-        Math.random() * 0.20;
+      this.nx = Math.random();
+      this.ny = Math.random();
 
       this.phase =
         Math.random() *
-        Math.PI * 2;
+        Math.PI *
+        2;
+
+      this.phaseY =
+        Math.random() *
+        Math.PI *
+        2;
+
+      this.radius =
+        0.8 +
+        Math.random() *
+        1.2;
+
+      this.energy =
+        Math.random() *
+        0.15;
+
+      this.x = 0;
+      this.y = 0;
 
     }
 
+
     update(time, config) {
 
-      this.x += this.vx;
-      this.y += this.vy;
+      /*
+       * Nodes don't physically wander through
+       * space anymore. They gently wobble around
+       * fixed topology points.
+       *
+       * That lets us calculate connections once.
+       */
 
-      if (this.x < -40) {
-        this.x = width + 40;
-      }
+      this.x =
+        this.nx * width +
+        Math.sin(
+          time * 0.00018 +
+          this.phase
+        ) * 7;
 
-      if (this.x > width + 40) {
-        this.x = -40;
-      }
-
-      if (this.y < -40) {
-        this.y = height + 40;
-      }
-
-      if (this.y > height + 40) {
-        this.y = -40;
-      }
+      this.y =
+        this.ny * height +
+        Math.sin(
+          time * 0.00014 +
+          this.phaseY
+        ) * 5;
 
       if (!coarsePointer) {
 
         const dx =
-          pointerX - this.x;
+          pointerX -
+          this.x;
 
         const dy =
-          pointerY - this.y;
+          pointerY -
+          this.y;
 
-        const distSq =
-          dx * dx + dy * dy;
+        const distanceSq =
+          dx * dx +
+          dy * dy;
 
-        const radius = 165;
-        const radiusSq =
-          radius * radius;
+        const influenceRadius = 155;
+        const influenceSq =
+          influenceRadius *
+          influenceRadius;
 
-        if (distSq < radiusSq) {
+        if (
+          distanceSq <
+          influenceSq
+        ) {
 
           const influence =
             (
               1 -
-              distSq / radiusSq
-            ) * 0.62;
+              distanceSq /
+              influenceSq
+            ) *
+            0.58;
 
           if (
             influence >
@@ -231,21 +239,19 @@
 
       }
 
-      const wave =
-        Math.sin(
-          time * 0.001 +
-          this.phase
-        );
-
       if (
-        wave > 0.992 &&
+        Math.sin(
+          time * 0.0008 +
+          this.phase
+        ) > 0.996 &&
         Math.random() <
-          config.pulse * 0.018
+          config.pulse *
+          0.012
       ) {
         this.energy = 1;
       }
 
-      this.energy *= 0.971;
+      this.energy *= 0.968;
 
     }
 
@@ -255,42 +261,56 @@
   class Particle {
 
     constructor() {
+
       this.reset(true);
+
     }
+
 
     reset(initial = false) {
 
       this.x =
-        Math.random() * width;
+        Math.random() *
+        width;
 
       this.y =
         initial
-          ? Math.random() * height
-          : height + 20;
+          ? Math.random() *
+            height
+          : height + 10;
 
       this.size =
-        0.5 +
-        Math.random() * 1.15;
+        0.55 +
+        Math.random() *
+        0.9;
 
       this.speed =
-        0.08 +
-        Math.random() * 0.22;
+        0.06 +
+        Math.random() *
+        0.16;
 
       this.drift =
-        (Math.random() - 0.5) *
-        0.055;
+        (
+          Math.random() -
+          0.5
+        ) *
+        0.04;
 
     }
 
+
     update() {
 
-      this.y -= this.speed;
-      this.x += this.drift;
+      this.y -=
+        this.speed;
+
+      this.x +=
+        this.drift;
 
       if (
-        this.y < -20 ||
-        this.x < -30 ||
-        this.x > width + 30
+        this.y < -12 ||
+        this.x < -20 ||
+        this.x > width + 20
       ) {
         this.reset();
       }
@@ -300,61 +320,185 @@
   }
 
 
-  function chooseRenderScale() {
+  function chooseScale() {
 
-    const deviceScale =
-      Math.min(
-        window.devicePixelRatio || 1,
-        1.25
-      );
-
-    const screenPixels =
-      width * height;
-
-    const budgetScale =
-      Math.sqrt(
-        MAX_CANVAS_PIXELS /
-        Math.max(
-          screenPixels,
-          1
-        )
-      );
+    const pixels =
+      width *
+      height;
 
     return Math.max(
-      0.55,
+      0.38,
       Math.min(
-        deviceScale,
-        budgetScale
+        0.82,
+        Math.sqrt(
+          PIXEL_BUDGET /
+          Math.max(
+            pixels,
+            1
+          )
+        )
       )
     );
 
   }
 
 
-  function resize() {
+  function buildNodes() {
+
+    nodes.length = 0;
+    edges.length = 0;
+    particles.length = 0;
+
+    for (
+      let i = 0;
+      i < NODE_COUNT;
+      i += 1
+    ) {
+
+      nodes.push(
+        new Node(i)
+      );
+
+    }
+
+    /*
+     * Build a sparse nearest-neighbor graph
+     * one time.
+     */
+
+    const edgeKeys =
+      new Set();
+
+    for (
+      let i = 0;
+      i < nodes.length;
+      i += 1
+    ) {
+
+      const nearest = [];
+
+      for (
+        let j = 0;
+        j < nodes.length;
+        j += 1
+      ) {
+
+        if (i === j) {
+          continue;
+        }
+
+        const dx =
+          nodes[i].nx -
+          nodes[j].nx;
+
+        const dy =
+          nodes[i].ny -
+          nodes[j].ny;
+
+        nearest.push({
+          j,
+          distance:
+            dx * dx +
+            dy * dy
+        });
+
+      }
+
+      nearest.sort(
+        (a, b) =>
+          a.distance -
+          b.distance
+      );
+
+      for (
+        let k = 0;
+        k <
+        Math.min(
+          CONNECTIONS_PER_NODE,
+          nearest.length
+        );
+        k += 1
+      ) {
+
+        const j =
+          nearest[k].j;
+
+        const a =
+          Math.min(i, j);
+
+        const b =
+          Math.max(i, j);
+
+        const key =
+          `${a}:${b}`;
+
+        if (
+          edgeKeys.has(key)
+        ) {
+          continue;
+        }
+
+        edgeKeys.add(key);
+
+        edges.push({
+          a,
+          b,
+          seed:
+            Math.random()
+        });
+
+      }
+
+    }
+
+    for (
+      let i = 0;
+      i <
+      PARTICLE_COUNT;
+      i += 1
+    ) {
+
+      particles.push(
+        new Particle()
+      );
+
+    }
+
+  }
+
+
+  function rebuildCanvas() {
 
     width =
-      window.innerWidth;
+      Math.max(
+        1,
+        window.innerWidth
+      );
 
     height =
-      window.innerHeight;
+      Math.max(
+        1,
+        window.innerHeight
+      );
 
-    renderScale =
-      chooseRenderScale();
+    scale =
+      chooseScale();
 
     canvas.width =
       Math.max(
         1,
-        Math.floor(
-          width * renderScale
+        Math.round(
+          width *
+          scale
         )
       );
 
     canvas.height =
       Math.max(
         1,
-        Math.floor(
-          height * renderScale
+        Math.round(
+          height *
+          scale
         )
       );
 
@@ -365,43 +509,47 @@
       `${height}px`;
 
     ctx.setTransform(
-      renderScale,
+      scale,
       0,
       0,
-      renderScale,
+      scale,
       0,
       0
     );
 
-    backgroundGradient =
+    surfaceGradient =
       ctx.createRadialGradient(
         width * 0.5,
-        height * 0.05,
+        0,
         0,
         width * 0.5,
-        height * 0.05,
-        height * 0.95
+        0,
+        height
       );
 
-    backgroundGradient
+    surfaceGradient
       .addColorStop(
         0,
-        "rgba(64,188,230,0.048)"
+        "rgba(82,205,244,0.050)"
       );
 
-    backgroundGradient
+    surfaceGradient
       .addColorStop(
-        0.42,
-        "rgba(8,75,103,0.022)"
+        0.38,
+        "rgba(12,83,111,0.018)"
       );
 
-    backgroundGradient
+    surfaceGradient
       .addColorStop(
         1,
         "rgba(0,0,0,0)"
       );
 
-    buildWorld();
+    buildNodes();
+
+    render(
+      performance.now()
+    );
 
   }
 
@@ -414,83 +562,19 @@
 
     resizeTimer =
       setTimeout(
-        resize,
-        120
+        rebuildCanvas,
+        180
       );
 
   }
 
 
-  function buildWorld() {
-
-    nodes.length = 0;
-    particles.length = 0;
-
-    const nodeCount =
-      Math.min(
-        MAX_NODES,
-        Math.max(
-          26,
-          Math.floor(
-            width / 32
-          )
-        )
-      );
-
-    const particleCount =
-      Math.min(
-        MAX_PARTICLES,
-        Math.max(
-          24,
-          Math.floor(
-            width / 34
-          )
-        )
-      );
-
-    for (
-      let i = 0;
-      i < nodeCount;
-      i += 1
-    ) {
-      nodes.push(
-        new Node()
-      );
-    }
-
-    for (
-      let i = 0;
-      i < particleCount;
-      i += 1
-    ) {
-      particles.push(
-        new Particle()
-      );
-    }
-
-    connectionCounts =
-      new Uint8Array(
-        nodeCount
-      );
-
-  }
-
-
-  function drawBackground(
+  function drawAtmosphere(
     config
   ) {
 
-    if (
-      !backgroundGradient
-    ) {
-      return;
-    }
-
-    ctx.globalAlpha =
-      config.cyan;
-
     ctx.fillStyle =
-      backgroundGradient;
+      surfaceGradient;
 
     ctx.fillRect(
       0,
@@ -499,55 +583,54 @@
       height
     );
 
-    ctx.globalAlpha = 1;
 
-  }
-
-
-  function drawCurrents(
-    time,
-    config
-  ) {
+    /*
+     * Three extremely faint current bands.
+     */
 
     ctx.beginPath();
 
-    const lineCount = 4;
-
     for (
-      let i = 0;
-      i < lineCount;
-      i += 1
+      let band = 0;
+      band < 3;
+      band += 1
     ) {
 
-      const baseY =
+      const base =
         height *
         (
-          0.20 +
-          i * 0.17
+          0.24 +
+          band *
+          0.23
         );
 
       for (
         let x = -40;
-        x <= width + 40;
-        x += 30
+        x < width + 40;
+        x += 58
       ) {
 
         const y =
-          baseY +
+          base +
           Math.sin(
-            x * 0.005 +
-            time * 0.00013 +
-            i * 1.7
+            x * 0.0042 +
+            band * 1.8
           ) *
           (
             5 +
-            i * 1.4
+            band
           );
 
         if (x === -40) {
-          ctx.moveTo(x, y);
+          ctx.moveTo(
+            x,
+            y
+          );
         } else {
-          ctx.lineTo(x, y);
+          ctx.lineTo(
+            x,
+            y
+          );
         }
 
       }
@@ -556,13 +639,12 @@
 
     ctx.strokeStyle =
       `rgba(
-        86,
-        205,
-        240,
+        88,
+        206,
+        239,
         ${
-          0.011 +
-          config.network *
-          0.014
+          0.012 *
+          config.currents
         }
       )`;
 
@@ -579,24 +661,25 @@
     ctx.beginPath();
 
     for (
-      const particle
+      const p
       of particles
     ) {
 
-      particle.update();
+      p.update();
 
       ctx.moveTo(
-        particle.x +
-        particle.size,
-        particle.y
+        p.x +
+        p.size,
+        p.y
       );
 
       ctx.arc(
-        particle.x,
-        particle.y,
-        particle.size,
+        p.x,
+        p.y,
+        p.size,
         0,
-        Math.PI * 2
+        Math.PI *
+        2
       );
 
     }
@@ -604,11 +687,11 @@
     ctx.fillStyle =
       `rgba(
         185,
-        234,
-        248,
+        235,
+        250,
         ${
-          0.075 *
-          config.particle
+          0.095 *
+          config.particles
         }
       )`;
 
@@ -622,253 +705,65 @@
     config
   ) {
 
-    const connectionDistance =
-      Math.min(
-        128,
-        width * 0.095
-      );
-
-    const connectionDistanceSq =
-      connectionDistance *
-      connectionDistance;
-
-    connectionCounts.fill(0);
-    activeEdges.length = 0;
-
     for (
       const node
       of nodes
     ) {
+
       node.update(
         time,
         config
       );
+
     }
 
 
     /*
-     * Draw the whole quiet network as one
-     * path rather than one stroke call per
-     * connection.
+     * Quiet network: one draw call.
      */
 
     ctx.beginPath();
 
     for (
-      let i = 0;
-      i < nodes.length;
-      i += 1
+      const edge
+      of edges
     ) {
 
-      if (
-        connectionCounts[i] >=
-        MAX_CONNECTIONS
-      ) {
-        continue;
-      }
-
       const a =
-        nodes[i];
+        nodes[edge.a];
 
-      for (
-        let j = i + 1;
-        j < nodes.length;
-        j += 1
-      ) {
+      const b =
+        nodes[edge.b];
 
-        if (
-          connectionCounts[i] >=
-          MAX_CONNECTIONS
-        ) {
-          break;
-        }
+      ctx.moveTo(
+        a.x,
+        a.y
+      );
 
-        if (
-          connectionCounts[j] >=
-          MAX_CONNECTIONS
-        ) {
-          continue;
-        }
-
-        const b =
-          nodes[j];
-
-        const dx =
-          a.x - b.x;
-
-        const dy =
-          a.y - b.y;
-
-        const distSq =
-          dx * dx +
-          dy * dy;
-
-        if (
-          distSq >
-          connectionDistanceSq
-        ) {
-          continue;
-        }
-
-        connectionCounts[i] += 1;
-        connectionCounts[j] += 1;
-
-        ctx.moveTo(
-          a.x,
-          a.y
-        );
-
-        ctx.lineTo(
-          b.x,
-          b.y
-        );
-
-        const activity =
-          Math.max(
-            a.energy,
-            b.energy
-          );
-
-        if (
-          activity > 0.56
-        ) {
-
-          activeEdges.push({
-            a,
-            b,
-            activity,
-            seed:
-              (
-                i * 17 +
-                j * 11
-              ) *
-              0.013
-          });
-
-        }
-
-      }
+      ctx.lineTo(
+        b.x,
+        b.y
+      );
 
     }
 
     ctx.strokeStyle =
       `rgba(
-        74,
-        207,
-        245,
+        75,
+        208,
+        246,
         ${
-          0.10 *
+          0.105 *
           config.network
         }
       )`;
 
-    ctx.lineWidth = 0.7;
+    ctx.lineWidth = 0.75;
     ctx.stroke();
 
 
     /*
-     * Only the small number of active
-     * connections receives the brighter
-     * second pass.
-     */
-
-    if (
-      activeEdges.length
-    ) {
-
-      ctx.beginPath();
-
-      for (
-        const edge
-        of activeEdges
-      ) {
-
-        ctx.moveTo(
-          edge.a.x,
-          edge.a.y
-        );
-
-        ctx.lineTo(
-          edge.b.x,
-          edge.b.y
-        );
-
-      }
-
-      ctx.strokeStyle =
-        `rgba(
-          105,
-          226,
-          255,
-          ${
-            0.22 *
-            config.network
-          }
-        )`;
-
-      ctx.lineWidth = 1.05;
-      ctx.stroke();
-
-
-      for (
-        const edge
-        of activeEdges
-      ) {
-
-        const travel =
-          (
-            time * 0.00018 +
-            edge.seed
-          ) % 1;
-
-        const x =
-          edge.a.x +
-          (
-            edge.b.x -
-            edge.a.x
-          ) *
-          travel;
-
-        const y =
-          edge.a.y +
-          (
-            edge.b.y -
-            edge.a.y
-          ) *
-          travel;
-
-        ctx.beginPath();
-
-        ctx.arc(
-          x,
-          y,
-          1.1 +
-          edge.activity * 0.8,
-          0,
-          Math.PI * 2
-        );
-
-        ctx.fillStyle =
-          `rgba(
-            126,
-            235,
-            255,
-            ${
-              0.22 +
-              edge.activity *
-              0.33
-            }
-          )`;
-
-        ctx.fill();
-
-      }
-
-    }
-
-
-    /*
-     * Quiet nodes are batched.
+     * Nodes: one draw call.
      */
 
     ctx.beginPath();
@@ -889,18 +784,19 @@
         node.y,
         node.radius,
         0,
-        Math.PI * 2
+        Math.PI *
+        2
       );
 
     }
 
     ctx.fillStyle =
       `rgba(
-        105,
-        224,
+        115,
+        225,
         255,
         ${
-          0.17 *
+          0.18 *
           config.network
         }
       )`;
@@ -909,54 +805,105 @@
 
 
     /*
-     * Bright energy is rare, so individual
-     * glows remain cheap.
+     * Only a handful of active edges get
+     * animated traveling signals.
      */
 
+    let pulses = 0;
+
     for (
-      const node
-      of nodes
+      const edge
+      of edges
     ) {
 
       if (
-        node.energy < 0.48
+        pulses >= 7
+      ) {
+        break;
+      }
+
+      const a =
+        nodes[edge.a];
+
+      const b =
+        nodes[edge.b];
+
+      const energy =
+        Math.max(
+          a.energy,
+          b.energy
+        );
+
+      if (
+        energy < 0.48
       ) {
         continue;
       }
 
+      const t =
+        (
+          time *
+          0.00015 +
+          edge.seed
+        ) % 1;
+
+      const x =
+        a.x +
+        (
+          b.x -
+          a.x
+        ) *
+        t;
+
+      const y =
+        a.y +
+        (
+          b.y -
+          a.y
+        ) *
+        t;
+
       ctx.beginPath();
 
       ctx.arc(
-        node.x,
-        node.y,
-        1.5 +
-        node.energy * 2,
+        x,
+        y,
+        1.3 +
+        energy *
+        0.7,
         0,
-        Math.PI * 2
+        Math.PI *
+        2
       );
 
       ctx.fillStyle =
         `rgba(
-          119,
-          231,
+          130,
+          238,
           255,
           ${
-            node.energy *
-            config.network *
-            0.62
+            0.30 +
+            energy *
+            0.35
           }
         )`;
 
       ctx.fill();
+
+      pulses += 1;
 
     }
 
   }
 
 
-  function render(
-    time
-  ) {
+  function render(time) {
+
+    if (
+      !surfaceGradient
+    ) {
+      return;
+    }
 
     const config =
       sceneConfig[
@@ -971,12 +918,7 @@
       height
     );
 
-    drawBackground(
-      config
-    );
-
-    drawCurrents(
-      time,
+    drawAtmosphere(
       config
     );
 
@@ -992,36 +934,47 @@
   }
 
 
-  function animationLoop(
-    time
-  ) {
+  function loop(time) {
 
     if (!running) {
       return;
     }
 
-    const fps =
-      scrolling
-        ? SCROLL_FPS
-        : TARGET_FPS;
+    /*
+     * Scrolling is already visually active.
+     * Keep the last canvas frame frozen while
+     * the browser moves page content.
+     *
+     * This is the largest scroll-jank reduction.
+     */
+    if (scrolling) {
 
-    const frameInterval =
-      1000 / fps;
+      requestAnimationFrame(
+        loop
+      );
+
+      return;
+
+    }
+
+    const interval =
+      1000 /
+      TARGET_FPS;
 
     if (
       time -
-      lastFrameTime >=
-      frameInterval
+      lastFrame >=
+      interval
     ) {
 
-      lastFrameTime =
+      lastFrame =
         time -
         (
           (
             time -
-            lastFrameTime
+            lastFrame
           ) %
-          frameInterval
+          interval
         );
 
       render(time);
@@ -1029,31 +982,35 @@
     }
 
     requestAnimationFrame(
-      animationLoop
+      loop
     );
 
   }
 
 
-  function updateScrollNow() {
+  function updateScroll() {
 
     scrollQueued = false;
 
-    const documentElement =
+    const doc =
       document.documentElement;
 
-    const maxScroll =
-      documentElement.scrollHeight -
+    const max =
+      doc.scrollHeight -
       window.innerHeight;
 
     const progress =
-      maxScroll > 0
+      max > 0
         ? window.scrollY /
-          maxScroll
+          max
         : 0;
 
-    progressBar.style.transform =
-      `scaleX(${progress})`;
+    if (progressBar) {
+
+      progressBar.style.transform =
+        `scaleX(${progress})`;
+
+    }
 
     scrolling = true;
 
@@ -1064,23 +1021,27 @@
     scrollTimer =
       setTimeout(
         () => {
-          scrolling = false;
-        },
-        140
-      );
 
-    if (
-      reducedMotion
-    ) {
-      render(
-        performance.now()
+          scrolling = false;
+
+          /*
+           * Render immediately after motion
+           * settles rather than waiting for
+           * the next scheduled animation frame.
+           */
+
+          render(
+            performance.now()
+          );
+
+        },
+        110
       );
-    }
 
   }
 
 
-  function queueScrollUpdate() {
+  function queueScroll() {
 
     if (scrollQueued) {
       return;
@@ -1089,7 +1050,7 @@
     scrollQueued = true;
 
     requestAnimationFrame(
-      updateScrollNow
+      updateScroll
     );
 
   }
@@ -1132,9 +1093,7 @@
           if (best) {
 
             activeScene =
-              best.target
-                .dataset
-                .scene ||
+              best.target.dataset.scene ||
               "surface";
 
           }
@@ -1142,9 +1101,9 @@
         },
         {
           threshold: [
-            0.2,
-            0.4,
-            0.6
+            0.20,
+            0.45,
+            0.65
           ]
         }
       );
@@ -1166,15 +1125,13 @@
         ".reveal"
       );
 
-    if (
-      reducedMotion
-    ) {
+    if (reducedMotion) {
 
       elements.forEach(
         element =>
-          element
-            .classList
-            .add("visible")
+          element.classList.add(
+            "visible"
+          )
       );
 
       return;
@@ -1208,9 +1165,9 @@
 
         },
         {
-          threshold: 0.10,
+          threshold: 0.08,
           rootMargin:
-            "0px 0px -30px 0px"
+            "0px 0px -20px 0px"
         }
       );
 
@@ -1253,8 +1210,8 @@
       "pointerleave",
       () => {
 
-        pointerX = -10000;
-        pointerY = -10000;
+        pointerX = -99999;
+        pointerY = -99999;
 
       }
     );
@@ -1264,23 +1221,24 @@
 
   function activateCluster(
     index,
-    total
+    count
   ) {
 
-    const start =
-      Math.floor(
-        index *
+    const chunk =
+      Math.ceil(
         nodes.length /
-        total
+        count
       );
 
+    const start =
+      index *
+      chunk;
+
     const end =
-      Math.floor(
-        (
-          index + 1
-        ) *
-        nodes.length /
-        total
+      Math.min(
+        nodes.length,
+        start +
+        chunk
       );
 
     for (
@@ -1289,14 +1247,10 @@
       i += 1
     ) {
 
-      if (nodes[i]) {
-
-        nodes[i].energy =
-          0.84 +
-          Math.random() *
-          0.16;
-
-      }
+      nodes[i].energy =
+        0.85 +
+        Math.random() *
+        0.15;
 
     }
 
@@ -1311,12 +1265,9 @@
       );
 
     runtimeNodes.forEach(
-      (
-        node,
-        index
-      ) => {
+      (element, index) => {
 
-        node.addEventListener(
+        element.addEventListener(
           "pointerenter",
           () => {
 
@@ -1334,14 +1285,13 @@
   }
 
 
-  function handleVisibility() {
+  function visibilityChange() {
 
     if (
       document.hidden
     ) {
 
       running = false;
-
       return;
 
     }
@@ -1361,10 +1311,10 @@
     if (!running) {
 
       running = true;
-      lastFrameTime = 0;
+      lastFrame = 0;
 
       requestAnimationFrame(
-        animationLoop
+        loop
       );
 
     }
@@ -1382,7 +1332,7 @@
 
   window.addEventListener(
     "scroll",
-    queueScrollUpdate,
+    queueScroll,
     {
       passive: true
     }
@@ -1390,12 +1340,12 @@
 
   document.addEventListener(
     "visibilitychange",
-    handleVisibility
+    visibilityChange
   );
 
 
-  resize();
-  queueScrollUpdate();
+  rebuildCanvas();
+  updateScroll();
   observeScenes();
   observeReveals();
   bindPointer();
@@ -1411,7 +1361,7 @@
   } else {
 
     requestAnimationFrame(
-      animationLoop
+      loop
     );
 
   }

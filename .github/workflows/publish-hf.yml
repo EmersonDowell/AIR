@@ -1,0 +1,46 @@
+name: Publish AIR to Hugging Face
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "hf/**"
+      - ".github/workflows/publish-hf.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish AIR Space
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout AIR
+        uses: actions/checkout@v4
+
+      - name: Install Hugging Face CLI
+        run: |
+          curl -LsSf https://hf.co/cli/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify publish content
+        run: |
+          test -d hf
+          test -f hf/README.md
+          test -f hf/index.html
+
+      - name: Publish AIR Space
+        env:
+          HF_OIDC_RESOURCE: spaces/Superior-Mind-Labs/AIR
+        run: |
+          hf upload \
+            Superior-Mind-Labs/AIR \
+            ./hf \
+            . \
+            --repo-type space \
+            --commit-message "Publish AIR from GitHub ${GITHUB_SHA::7}"

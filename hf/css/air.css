@@ -1690,3 +1690,100 @@ a {
   }
 
 }
+
+
+/* ============================================================
+   AIR NEURAL LAYER VISIBILITY FIX
+   ============================================================ */
+
+/*
+ * The atmospheric world used to sit at z-index -5.
+ * Because body paints its own opaque background,
+ * the neural canvas could end up behind that paint.
+ *
+ * Keep the atmospheric system inside the page's
+ * stacking context instead.
+ */
+
+html {
+  background: #02080e;
+}
+
+body {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+/*
+ * World is now the visible background layer.
+ */
+
+.world {
+  z-index: 0;
+}
+
+/*
+ * Explicit ordering inside the atmospheric system.
+ */
+
+.water-light {
+  z-index: 1;
+}
+
+.depth-glow {
+  z-index: 2;
+}
+
+#neural-ocean {
+  z-index: 3;
+  opacity: 0.92;
+}
+
+.vignette {
+  z-index: 4;
+}
+
+/*
+ * Actual page content remains above the atmosphere.
+ */
+
+main {
+  position: relative;
+  z-index: 2;
+}
+
+.footer {
+  position: relative;
+  z-index: 2;
+}
+
+/*
+ * Keep cards translucent enough that the neural
+ * topology can occasionally be seen behind them.
+ */
+
+.feature-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6, 28, 40, 0.78),
+      rgba(3, 16, 25, 0.72)
+    );
+}
+
+.runtime-map,
+.research-panel,
+.release-data,
+.release-copy {
+  background:
+    rgba(3, 15, 23, 0.76);
+}
+
+@media (max-width: 760px) {
+
+  #neural-ocean {
+    opacity: 0.78;
+  }
+
+}
